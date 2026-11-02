@@ -1,6 +1,6 @@
 # Final demo and verified evidence
 
-The narrated video, captions and thumbnail are available in the [v1.0.0 release](https://github.com/Abhyuday-06/PayPal-Hackathon/releases/tag/v1.0.0). The production source and full narration are in `submission/`. The cut is approximately 2 minutes 46 seconds, with actual app footage, annotated chapters, camera zooms and word-timed English captions. Loading/setup is removed.
+The narrated video, captions and thumbnail are available in the [v1.0.0 release](https://github.com/Abhyuday-06/PayPal-Hackathon/releases/tag/v1.0.0). The production source and full narration are in `submission/`. The cut is approximately 2 minutes 50 seconds, with actual app footage, annotated chapters, camera zooms and word-timed English captions. Loading/setup is removed.
 
 ## Story
 

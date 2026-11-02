@@ -1,5 +1,6 @@
 """Render actual browser recordings with narration, timed captions, and zooms."""
 import json
+import argparse
 import math
 import html
 import re
@@ -21,6 +22,7 @@ def stamp(seconds, ass=False):
 
 
 def main():
+    parser=argparse.ArgumentParser();parser.add_argument("--reuse",action="store_true",help="Reuse existing unchanged scene renders.");args=parser.parse_args()
     story=json.loads((ROOT/"submission/storyboard.json").read_text(encoding="utf-8"))
     shots=json.loads((FOLDER/"shots.json").read_text(encoding="utf-8"))
     fonts=FOLDER/"fonts";fonts.mkdir(exist_ok=True)
@@ -59,13 +61,13 @@ def main():
             inputs=["-loop","1","-framerate","30","-i",str(source)]
             image=f"[0:v]scale=1920:1080,zoompan=z='1.0+0.035*sin(PI*on/{int(length*30)})':x='(iw-iw/zoom)/2':y='(ih-ih/zoom)/2':d=1:s=1920x1080:fps=30,setsar=1[screen]"
         else:
-            shot=shots[sid];raw=ROOT/shot["path"];raw_len=shot["end"]-shot["start"]
+            shot=shots[scene.get("shot",sid)];raw=ROOT/shot["path"];raw_len=shot["end"]-shot["start"]
             inputs=["-ss",str(shot["start"]),"-t",str(raw_len),"-i",str(raw)]
             image=f"[0:v]setpts={length/raw_len:.8f}*(PTS-STARTPTS),fps=30,scale=2400:1500,zoompan=z='1.0+0.18*sin(PI*on/{int(length*30)})':x='(iw-iw/zoom)*0.88':y='(ih-ih/zoom)*0.45':d=1:s=1520x950:fps=30,pad=1920:1080:200:65:color=0xf3f6fb,setsar=1[screen]"
         if sid=="04-approval":
             # Hold the actual pre-approval frame while explaining that planning
             # has not reserved funds, then play the real owner approval action.
-            shot=shots[sid];raw=ROOT/shot["path"];raw_len=shot["end"]-shot["start"];hold=6.0
+            shot=shots[scene.get("shot",sid)];raw=ROOT/shot["path"];raw_len=shot["end"]-shot["start"];hold=6.0
             inputs=["-loop","1","-framerate","30","-t",str(hold),"-i",str(FOLDER/"stills/02-mission.png"),"-ss",str(shot["start"]),"-t",str(raw_len),"-i",str(raw)]
             audio_index=2
             image=f"[0:v]trim=duration={hold},setpts=PTS-STARTPTS,fps=30[before];[1:v]setpts={(length-hold)/raw_len:.8f}*(PTS-STARTPTS),fps=30[approval];[before][approval]concat=n=2:v=1:a=0,scale=2400:1500,zoompan=z='1.0+0.18*sin(PI*on/{int(length*30)})':x='(iw-iw/zoom)*0.88':y='(ih-ih/zoom)*0.45':d=1:s=1520x950:fps=30,pad=1920:1080:200:65:color=0xf3f6fb,setsar=1[screen]"
@@ -74,7 +76,8 @@ def main():
         style="FontName=Segoe UI,FontSize=25,PrimaryColour=&H00FFFFFF,OutlineColour=&H00462B17,BackColour=&H00462B17,BorderStyle=3,Outline=2,Shadow=0,MarginV=18,MarginL=150,MarginR=150,Alignment=2"
         filters=image+f";[screen]drawbox=x=0:y=0:w=1920:h=58:color=0x172b46:t=fill,drawtext=fontfile=submission/render/fonts/semibold.ttf:textfile='{chapter_path}':fontsize=25:fontcolor=white:x=50:y=13,drawtext=fontfile=submission/render/fonts/regular.ttf:text='AgentGate':fontsize=24:fontcolor=0xbfd4f4:x=1740:y=13,drawbox=x=0:y=963:w=1920:h=117:color=0x172b46@0.96:t=fill,subtitles=filename='{subtitle}':fontsdir=submission/render/fonts,fade=t=in:st=0:d=0.25,fade=t=out:st={length-0.25}:d=0.25[v];[{audio_index}:a]adelay=150|150,apad=pad_dur=1,atrim=duration={length},asetpts=PTS-STARTPTS[a]"
         cmd=common+inputs+["-i",str(audio),"-filter_complex",filters,"-map","[v]","-map","[a]","-t",str(length),"-c:v","libx264","-preset","veryfast","-crf","18","-pix_fmt","yuv420p","-r","30","-c:a","aac","-b:a","192k","-ar","48000","-movflags","+faststart",str(output)]
-        subprocess.run(cmd,cwd=ROOT,check=True)
+        if not args.reuse or not output.exists():
+            subprocess.run(cmd,cwd=ROOT,check=True)
         timeline.append({"scene":sid,"start":round(offset,3),"end":round(offset+length,3),"narration":scene["narration"]});offset+=duration(output)
         print(f"Rendered {sid}: {length:.2f}s",flush=True)
     assert offset<180,f"Video exceeds limit: {offset}"

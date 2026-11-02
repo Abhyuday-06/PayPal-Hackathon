@@ -40,16 +40,17 @@
       "narration": "Replaying returns the same capture receipt, without a new charge. Uncertain outcomes keep their reservation until reconciliation. The failure lab exercises concurrent overspending, changed carts, expired approval, and replay protection in an isolated simulation. Seller descriptions can also be edited to inspect the model's actual response, without assuming an attack succeeded."
     },
     {
-      "id": "07-evaluation",
+      "id": "07-evaluation-final",
       "chapter": "Evidence, including the misses",
       "headline": "Measure usefulness separately from policy safety.",
-      "narration": "We also tested six synthetic mission cases on each of two models. Gemma matched five expected carts; Qwen matched all six. Neither accepted a policy violating cart in this small evaluation. Every attempt, including the failed task, is downloadable. These results are a reproducible starting point, not a production security guarantee."
+      "narration": "We also tested six synthetic mission cases on each of two models. The smaller model matched five expected carts. The larger model matched all six. Neither accepted a policy violating cart in this small evaluation. Every attempt, including the failed task, is downloadable. These results are a reproducible starting point, not a production security guarantee.",
+      "shot": "07-evaluation"
     },
     {
-      "id": "08-close",
+      "id": "08-close-final",
       "chapter": "Built for developers",
       "headline": "Delegate the task. Retain payment authority.",
-      "narration": "External agents connect with proposal only credentials. They can read assigned budgets and submit carts, but cannot approve or capture. The public, MIT licensed repository includes the working build, tests, raw evaluations, and a one command interactive judge demo. AgentGate helps teams delegate purchasing while keeping approval, budget, and payment evidence connected."
+      "narration": "External agents connect with proposal only credentials. Each agent can view its assigned budget and suggest a cart. Approval and capture require the owner credential. The public, MIT licensed repository includes the working build, tests, raw evaluations, and a one command interactive judge demo. AgentGate helps teams delegate purchasing while keeping approval, budget, and payment evidence connected."
     }
   ]
 }
