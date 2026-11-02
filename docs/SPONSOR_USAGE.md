@@ -1,0 +1,9 @@
+# PayPal and APIMatic usage record
+
+PayPal sandbox Orders v2 is used for server-created checkout, explicit sandbox buyer approval, authoritative order checks, capture, and read-only recovery. Server catalogue prices and approved fingerprints determine payment amounts; browser and agent input cannot substitute an arbitrary remote order.
+
+The running adapter uses `paypal-server-sdk==2.4.0`, the APIMatic-generated PayPal Server SDK, for authoritative order reads in the actual capture/reconciliation path. `backend/agentgate/sdk.py` constructs the sandbox SDK client and reads typed order results. The completed local order was independently queried using this SDK. Creation/capture and webhook signature verification use the PayPal REST endpoints directly with stable order/capture idempotency keys.
+
+The official [PayPal SDK Context Plugin preview](https://github.com/paypaldev/server-sdk-context-plugin-preview) was read locally at commit `6aa057126f0d4709a42e15002aab832a94935d92`. Its Python getting-started, authentication and endpoint instructions guided the integration. Installed SDK source was inspected to verify actual method signatures rather than invent endpoint names.
+
+Plugin registration is **not complete**: the remote installer failed to fetch its manifest, and the local installer reported that the available Codex CLI does not support `codex plugin`. No registration or plugin invocation is claimed. Reading the local context pack and using the generated runtime SDK are the verified work. Complete a supported plugin installation and document an actual invocation if the sponsor's judging requirements demand it. SDK usage alone is not asserted to guarantee sponsor-prize eligibility; review the [official sponsor requirements](https://paypalaihackathon.devpost.com/details/apimatic) before submission.

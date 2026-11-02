@@ -1,0 +1,65 @@
+# Review docs/DEPLOYMENT.md and supply persistent PostgreSQL + reachable AI first.
+# No database, paid disk, or paid worker is provisioned by this blueprint.
+services:
+  - type: web
+    name: agentgate-api
+    runtime: python
+    rootDir: backend
+    plan: free
+    region: singapore
+    autoDeployTrigger: 'off'
+    buildCommand: pip install -r requirements.lock.txt
+    startCommand: uvicorn agentgate.api:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /health
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.12.10
+      - key: AGENTGATE_ENV
+        value: production
+      - key: PAYMENT_MODE
+        value: paypal
+      - key: DATABASE_URL
+        sync: false
+      - key: AGENTGATE_OWNER_TOKEN
+        sync: false
+      - key: AGENTGATE_IRIS_TOKEN
+        generateValue: true
+      - key: AGENTGATE_NOVA_TOKEN
+        generateValue: true
+      - key: PAYPAL_CLIENT_ID
+        sync: false
+      - key: PAYPAL_CLIENT_SECRET
+        sync: false
+      - key: PAYPAL_MERCHANT_ID
+        sync: false
+      - key: PAYPAL_WEBHOOK_ID
+        sync: false
+      - key: FRONTEND_URL
+        sync: false
+      - key: OLLAMA_URL
+        sync: false
+      - key: OLLAMA_MODEL
+        sync: false
+      - key: OLLAMA_API_KEY
+        sync: false
+  - type: web
+    name: agentgate-console
+    runtime: node
+    rootDir: frontend
+    plan: free
+    region: singapore
+    autoDeployTrigger: 'off'
+    buildCommand: npm ci && npm run build
+    startCommand: npm run start -- --port $PORT
+    healthCheckPath: /api/auth/session
+    envVars:
+      - key: NODE_VERSION
+        value: 22.16.0
+      - key: AGENTGATE_ENV
+        value: production
+      - key: AGENTGATE_API_URL
+        sync: false
+      - key: AGENTGATE_OWNER_TOKEN
+        sync: false
+      - key: AGENTGATE_CONSOLE_ORIGIN
+        sync: false

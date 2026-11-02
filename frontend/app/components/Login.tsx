@@ -1,0 +1,10 @@
+"use client";
+import { useState } from "react";
+import { ShieldCheck, LockKeyhole } from "lucide-react";
+
+export default function Login({ onSignedIn }: { onSignedIn: () => Promise<void> }) {
+  const [accessKey, setAccessKey] = useState("");
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState("");
+  return <main className="login-page"><section className="login-panel"><div className="login-brand"><ShieldCheck size={30} /> AgentGate</div><h1>Sign in to your workspace.</h1><p>Review agent requests and authorize payments with your owner access key.</p><form onSubmit={async e => { e.preventDefault(); setBusy(true); setError(""); try { const response = await fetch("/api/auth/login", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ access_key: accessKey }) }); const result = await response.json(); if (!response.ok) throw new Error(result.message); setAccessKey(""); await onSignedIn(); } catch (e) { setError(e instanceof Error ? e.message : "Sign-in failed."); } finally { setBusy(false); } }}><label htmlFor="access-key">Owner access key</label><input id="access-key" type="password" autoComplete="current-password" value={accessKey} onChange={e => setAccessKey(e.target.value)} required maxLength={256} disabled={busy} /><button className="primary wide" disabled={busy}><LockKeyhole size={16} />{busy ? "Signing in…" : "Sign in"}</button></form>{error && <p className="login-error" role="alert">{error}</p>}<div className="login-note">Agents use separate credentials and cannot sign in as the owner. Your key is never saved in browser storage.</div></section></main>;
+}
