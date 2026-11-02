@@ -80,7 +80,7 @@ def main():
     assert offset<180,f"Video exceeds limit: {offset}"
     (FOLDER/"concat.txt").write_text("\n".join("file '"+s["id"]+".mp4'" for s in story["scenes"]),encoding="utf-8")
     final=FOLDER/"AgentGate-Hackathon-Demo.mp4"
-    subprocess.run(["ffmpeg","-hide_banner","-loglevel","error","-y","-f","concat","-safe","0","-i",str(FOLDER/"concat.txt"),"-c:v","copy","-c:a","aac","-b:a","192k","-af","loudnorm=I=-16:TP=-1.5:LRA=8","-movflags","+faststart",str(final)],cwd=ROOT,check=True)
+    subprocess.run(["ffmpeg","-hide_banner","-loglevel","error","-y","-f","concat","-safe","0","-i",str(FOLDER/"concat.txt"),"-c:v","libx264","-preset","veryfast","-crf","18","-r","30","-fps_mode","cfr","-pix_fmt","yuv420p","-c:a","aac","-b:a","192k","-ar","48000","-af","aresample=async=1:first_pts=0,loudnorm=I=-16:TP=-1.5:LRA=8,aresample=48000,asetpts=N/SR/TB","-movflags","+faststart",str(final)],cwd=ROOT,check=True)
     srt_text="\n\n".join(f"{i+1}\n{stamp(a)} --> {stamp(b)}\n{text}" for i,(a,b,text) in enumerate(final_cues))+"\n"
     (FOLDER/"AgentGate-Captions.srt").write_text(srt_text,encoding="utf-8")
     (FOLDER/"AgentGate-Captions.vtt").write_text("WEBVTT\n\n"+"\n\n".join(f"{stamp(a).replace(chr(44),chr(46))} --> {stamp(b).replace(chr(44),chr(46))}\n{text}" for a,b,text in final_cues)+"\n",encoding="utf-8")
