@@ -5,6 +5,8 @@ from urllib.parse import urlparse
 def validate_deployment(env):
     if env.get("AGENTGATE_ENV") != "production":
         return
+    if env.get("AGENTGATE_DEMO_MODE") == "true":
+        raise RuntimeError("Judge demo mode is local and cannot run in production.")
     tokens = [env.get(name, "") for name in ("AGENTGATE_OWNER_TOKEN", "AGENTGATE_IRIS_TOKEN", "AGENTGATE_NOVA_TOKEN")]
     if any(len(token) < 32 or token.startswith("local-") for token in tokens) or len(set(tokens)) != 3:
         raise RuntimeError("Deployment requires three distinct private credentials of at least 32 characters.")

@@ -5,6 +5,7 @@ import { useCallback, useEffect, useState } from "react";
 import Login from "./components/Login";
 import Mission, { type MissionRun } from "./components/Mission";
 import MissionEvaluation from "./components/MissionEvaluation";
+import PaymentEvidence from "./components/PaymentEvidence";
 
 import BudgetForm from "./components/BudgetForm";
 
@@ -42,6 +43,7 @@ async function api<T>(path: string, body?: unknown): Promise<T> {
 
 export default function Console() {
 
+  const [demoAvailable, setDemoAvailable] = useState(false);
   const [signedIn, setSignedIn] = useState<boolean | null>(null);
 
   const [selectedBudget, setSelectedBudget] = useState("");
@@ -66,7 +68,7 @@ export default function Console() {
 
   const refresh = useCallback(async () => { setSnapshot(await api<Snapshot>("state")); }, []);
 
-  useEffect(() => { fetch("/api/auth/session", { cache: "no-store" }).then(r => r.json()).then(async session => { setSignedIn(session.authenticated); if (session.authenticated) await refresh(); }).catch(() => setSignedIn(false)); }, [refresh]);
+  useEffect(() => { fetch("/api/auth/session", { cache: "no-store" }).then(r => r.json()).then(async session => { setDemoAvailable(!!session.demo_available); setSignedIn(session.authenticated); if (session.authenticated) await refresh(); }).catch(() => setSignedIn(false)); }, [refresh]);
 
   useEffect(() => { if (!signedIn) return; const timer = setInterval(() => { refresh().catch(() => undefined); }, 5000); return () => clearInterval(timer); }, [signedIn, refresh]);
 
@@ -80,7 +82,7 @@ export default function Console() {
 
   }
 
-  const mandate = snapshot?.mandates.find(m => m.id === selectedBudget) || snapshot?.mandates.find(m => m.id === snapshot.missions?.[0]?.payload.mandate_id) || snapshot?.mandates.find(m => m.id === "mandate-studio") || snapshot?.mandates[0];
+  const mandate = snapshot?.mandates.find(m => m.id === selectedBudget) || snapshot?.mandates.find(m => m.id === snapshot.missions?.find(r => r.proposals.length > 0 && r.proposals.every(p => p.state === "captured"))?.payload.mandate_id) || snapshot?.mandates.find(m => m.id === snapshot.missions?.[0]?.payload.mandate_id) || snapshot?.mandates.find(m => m.id === "mandate-studio") || snapshot?.mandates[0];
   const proposals = snapshot?.proposals.filter(p => p.mandate_id === mandate?.id) || [];
 
   const simulated = snapshot?.payment_mode !== "paypal";
@@ -119,7 +121,7 @@ export default function Console() {
 
         await api(`proposals/${p.id}/${verb}`, verb === "cancel" ? {} : { cart_hash: p.cart_hash });
 
-        setNotice(verb === "approve" ? "Exact cart approved. Funds reserved against the shared budget." : verb === "renew" ? "Owner approval renewed for the same exact cart." : verb === "reconcile" ? "Provider status checked without initiating a new charge." : verb === "capture" ? "Capture confirmed. The receipt is recorded below." : verb === "order" ? "Sandbox order created. Complete buyer approval using the checkout link." : "Proposal cancelled.");
+        setNotice(verb === "verify" ? "PayPal independently confirmed the saved order, capture, amount and currency. No payment was initiated." : verb === "approve" ? "Exact cart approved. Funds reserved against the shared budget." : verb === "renew" ? "Owner approval renewed for the same exact cart." : verb === "reconcile" ? "Provider status checked without initiating a new charge." : verb === "capture" ? "Capture confirmed. The receipt is recorded below." : verb === "order" ? "Sandbox order created. Complete buyer approval using the checkout link." : "Proposal cancelled.");
 
       }
 
@@ -129,7 +131,7 @@ export default function Console() {
 
   if (signedIn === null) return <main className="login-page"><p>Checking owner session…</p></main>;
 
-  if (!signedIn) return <Login onSignedIn={async () => { setSignedIn(true); await refresh(); }} />;
+  if (!signedIn) return <Login demoAvailable={demoAvailable} onSignedIn={async () => { setSignedIn(true); await refresh(); }} />;
 
   return <div className="app-shell">
 
@@ -137,11 +139,11 @@ export default function Console() {
 
       <a className="brand" href="/" aria-label="AgentGate home"><span className="brand-mark"><ShieldCheck size={24} /></span><span>AgentGate<span className="brand-sub">Payment execution control</span></span></a>
 
-      <div className="workspace"><span className="workspace-icon">S</span><div>Studio workspace<small>Local owner console</small></div></div>
+      <div className="workspace"><span className="workspace-icon">S</span><div>Studio workspace<small>Developer sandbox</small></div></div>
 
       <nav aria-label="Main navigation">
 
-        {[{ id: "mission", name: "Recording mission", icon: Target }, { id: "gateway", name: "Gateway", icon: Network }, { id: "lab", name: "Failure lab", icon: FlaskConical }, { id: "benchmark", name: "Live benchmark", icon: Terminal }, { id: "policy", name: "Budget policy", icon: LockKeyhole }].map(({ id, name, icon: Icon }) => <button key={id} onClick={() => setView(id)} className={view === id ? "nav-item active" : "nav-item"} aria-current={view === id ? "page" : undefined}><Icon size={18} />{name}{view === id && <ChevronRight size={16} />}</button>)}
+        {[{ id: "mission", name: "Recording mission", icon: Target }, { id: "gateway", name: "Gateway", icon: Network }, { id: "evidence", name: "Payment evidence", icon: ShieldCheck }, { id: "lab", name: "Failure lab", icon: FlaskConical }, { id: "benchmark", name: "Live benchmark", icon: Terminal }, { id: "policy", name: "Budget policy", icon: LockKeyhole }].map(({ id, name, icon: Icon }) => <button key={id} onClick={() => setView(id)} className={view === id ? "nav-item active" : "nav-item"} aria-current={view === id ? "page" : undefined}><Icon size={18} />{name}{view === id && <ChevronRight size={16} />}</button>)}
 
       </nav>
 
@@ -153,11 +155,11 @@ export default function Console() {
 
     <main>
 
-      <header className="topbar"><div className="breadcrumb">Studio workspace <ChevronRight size={14} /> <span>{view === "mission" ? "Recording mission" : view === "lab" ? "Failure lab" : view === "benchmark" ? "Live benchmark" : view === "policy" ? "Budget policy" : "Gateway"}</span></div><div className="topbar-actions"><span className="mode-tag"><span className={simulated ? "dot amber" : "dot"} />{simulated ? "Simulated payments" : "PayPal sandbox"}</span><button className="icon-button" onClick={() => run("refresh", async () => { await refresh(); })} disabled={disabled} title="Refresh gateway" aria-label="Refresh gateway"><RefreshCw size={16} className={busy === "refresh" ? "spin" : ""} /></button></div></header>
+      <header className="topbar"><div className="breadcrumb">Studio workspace <ChevronRight size={14} /> <span>{view === "evidence" ? "Payment evidence" : view === "mission" ? "Recording mission" : view === "lab" ? "Failure lab" : view === "benchmark" ? "Live benchmark" : view === "policy" ? "Budget policy" : "Gateway"}</span></div><div className="topbar-actions"><span className="mode-tag"><span className={simulated ? "dot amber" : "dot"} />{simulated ? "Simulated payments" : "PayPal sandbox"}</span><button className="icon-button" onClick={() => run("refresh", async () => { await refresh(); })} disabled={disabled} title="Refresh gateway" aria-label="Refresh gateway"><RefreshCw size={16} className={busy === "refresh" ? "spin" : ""} /></button></div></header>
 
       <div className="content">
 
-        <div className="page-heading"><div><div className="section-kicker"><ShieldCheck size={16} /> Owner-controlled execution</div><h1>{view === "mission" ? "One mission. Two agents. A shared budget." : view === "lab" ? "Test the payment boundary." : view === "benchmark" ? "See what the model actually does." : view === "policy" ? "Set the rules before the request." : "Give agents a budget. Keep control."}</h1><p>{view === "mission" ? "Follow each recommendation, revision and approval as your agents assemble a useful recording setup." : view === "lab" ? "Reproduce failure cases against an isolated ledger. Your workspace budget stays untouched." : view === "benchmark" ? "Compare actual model suggestions with the policy gateway using saved, reproducible trial results." : view === "policy" ? "Choose budgets and purchase scopes. Existing approvals retain the policy you reviewed." : "Review what your agents want to buy, approve the exact cart, and follow every payment."}</p></div><span className="version">Prototype v0.3</span></div>
+        <div className="page-heading"><div><div className="section-kicker"><ShieldCheck size={16} /> Owner-controlled execution</div><h1>{view === "evidence" ? "A payment should leave evidence." : view === "mission" ? "One mission. Two agents. A shared budget." : view === "lab" ? "Test the payment boundary." : view === "benchmark" ? "See what the model actually does." : view === "policy" ? "Set the rules before the request." : "Give agents a budget. Keep control."}</h1><p>{view === "evidence" ? "Inspect the exact cart, independently verify the provider receipt, and replay without another charge." : view === "mission" ? "Follow each recommendation, revision and approval as your agents assemble a useful recording setup." : view === "lab" ? "Reproduce failure cases against an isolated ledger. Your workspace budget stays untouched." : view === "benchmark" ? "Compare actual model suggestions with the policy gateway using saved, reproducible trial results." : view === "policy" ? "Choose budgets and purchase scopes. Existing approvals retain the policy you reviewed." : "Review what your agents want to buy, approve the exact cart, and follow every payment."}</p></div><span className="version">Submission build</span></div>
 
         {error && <div className="message error" role="alert"><CircleHelp size={18} /><span>{error}</span><button onClick={() => setError("")} aria-label="Dismiss error"><X size={16} /></button></div>}
 
@@ -167,13 +169,15 @@ export default function Console() {
 
         {snapshot && mandate && <>
 
-          <div className="budget-selector"><label htmlFor="selected-budget">Active budget</label><select id="selected-budget" value={mandate.id} onChange={e => { setSelectedBudget(e.target.value); const m = snapshot.mandates.find(m => m.id === e.target.value); if (m && !m.agents.includes(agent)) setAgent(m.agents[0]); }}>{snapshot.mandates.map(m => <option key={m.id} value={m.id}>{m.label}</option>)}</select></div><section className="budget-strip" aria-label="Shared budget"><div className="budget-intro"><div className="budget-symbol"><LockKeyhole size={22} /></div><div><strong>{mandate.label}</strong><span>{mandate.agents.map(a => a === "iris" ? "Iris" : "Nova").join(" and ")} <span className="small-dot">•</span> USD</span></div></div><div className="budget-numbers"><div><span>Budget</span><strong>{money(mandate.budget_cents)}</strong></div><div><span>Spent</span><strong>{money(mandate.spent_cents)}</strong></div><div><span>Reserved</span><strong>{money(mandate.reserved_cents)}</strong></div><div className="available"><span>Available</span><strong>{money(mandate.available_cents)}</strong></div></div><div className="budget-meter" aria-label={`${money(mandate.available_cents)} available`}><span className="spent-meter" style={{ width: `${mandate.spent_cents / mandate.budget_cents * 100}%` }} /><span className="held-meter" style={{ width: `${mandate.reserved_cents / mandate.budget_cents * 100}%` }} /></div></section>
+          {view !== "evidence" && <><div className="budget-selector"><label htmlFor="selected-budget">Active budget</label><select id="selected-budget" value={mandate.id} onChange={e => { setSelectedBudget(e.target.value); const m = snapshot.mandates.find(m => m.id === e.target.value); if (m && !m.agents.includes(agent)) setAgent(m.agents[0]); }}>{snapshot.mandates.map(m => <option key={m.id} value={m.id}>{m.label}</option>)}</select></div><section className="budget-strip" aria-label="Shared budget"><div className="budget-intro"><div className="budget-symbol"><LockKeyhole size={22} /></div><div><strong>{mandate.label}</strong><span>{mandate.agents.map(a => a === "iris" ? "Iris" : "Nova").join(" and ")} <span className="small-dot">•</span> USD</span></div></div><div className="budget-numbers"><div><span>Budget</span><strong>{money(mandate.budget_cents)}</strong></div><div><span>Spent</span><strong>{money(mandate.spent_cents)}</strong></div><div><span>Reserved</span><strong>{money(mandate.reserved_cents)}</strong></div><div className="available"><span>Available</span><strong>{money(mandate.available_cents)}</strong></div></div><div className="budget-meter" aria-label={`${money(mandate.available_cents)} available`}><span className="spent-meter" style={{ width: `${mandate.spent_cents / mandate.budget_cents * 100}%` }} /><span className="held-meter" style={{ width: `${mandate.reserved_cents / mandate.budget_cents * 100}%` }} /></div></section></>}
 
           {view === "mission" && <Mission runs={snapshot.missions || []} budget={mandate} model={snapshot.model} disabled={disabled} simulated={simulated}
+            onRecorded={simulated ? () => run("recorded", async () => { const result = await api<MissionRun>("demo/recorded-mission", {}); setSelectedBudget(result.payload.mandate_id); setNotice("Recorded AI loaded into a fresh simulated budget. No live inference was performed."); }) : undefined}
             onStart={body => run("mission", async () => { await api("missions", body); setNotice("Mission queued. Actual agent decisions will appear as planning progresses."); })}
             onFreshBudget={() => run("fresh-budget", async () => { const created = await api<Mandate>("mandates", { label: "Recording mission " + new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }), budget_cents: 10000, max_transaction_cents: 10000, categories: ["audio", "lighting", "accessories"], agents: ["iris", "nova"], lifetime_hours: 24, approval_ttl: 1800 }); setSelectedBudget(created.id); setNotice("Fresh $100 policy budget created. No funds are reserved until you approve exact carts."); })}
             onApprove={(id, carts) => run("mission-approve", async () => { await api(`missions/${id}/approve`, { carts }); setNotice("Exact mission carts approved together. Their combined amount is now reserved."); })}
             onAction={action} />}
+          {view === "evidence" && <PaymentEvidence receipts={snapshot.proposals.filter(p => p.state === "captured")} disabled={disabled} onVerify={p => action(p, "verify")} onReplay={p => run("receipt-replay", async () => { await api(`proposals/${p.id}/capture`, { cart_hash: p.cart_hash }); setNotice("Original receipt returned. No new capture was initiated."); })} />}
           {view === "gateway" && <>
 
             <div className="workspace-grid">

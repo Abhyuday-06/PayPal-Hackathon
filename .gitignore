@@ -9,6 +9,8 @@ __pycache__/
 *.db-wal
 node_modules/
 .next/
+.next-demo/
+submission/render/
 out/
 test-results/
 playwright-report/

@@ -380,6 +380,28 @@ class Gateway:
                 self.event(db, "reconciled", "Authoritative provider lookup confirmed the original capture; no new charge was initiated.", proposal_id=pid, mode=self.provider.mode)
             return current
 
+    def verify_receipt(self, pid):
+        """Re-read a completed PayPal order, independently of local replay state."""
+        mid = self.proposal_mandate(pid)
+        with self.tx(mid) as db:
+            p = self.get_proposal(db, pid)
+            if p["state"] != "captured" or p["payment_mode"] != "paypal" or self.provider.mode != "paypal":
+                raise GateError("SANDBOX_RECEIPT_REQUIRED", "Choose a completed PayPal sandbox receipt for provider verification.")
+        try:
+            remote = self.provider.reconcile(p)
+        except Exception:
+            raise GateError("PROVIDER_UNAVAILABLE", "PayPal verification is unavailable. The saved receipt remains unchanged.", 503) from None
+        if remote != p["receipt"]:
+            raise GateError("RECEIPT_MISMATCH", "The provider response did not match the saved capture. Review it before relying on this receipt.")
+        with self.tx(mid) as db:
+            current = self.get_proposal(db, pid)
+            if current["receipt"] != p["receipt"] or current["state"] != "captured":
+                raise GateError("RECEIPT_CHANGED", "The saved receipt changed during verification. Refresh and retry.")
+            current["provider_verification"] = {"checked_at": self.clock(), "order_id": p["order_id"], "capture_id": remote["id"], "status": remote["status"], "amount_cents": remote["amount_cents"], "currency": remote["currency"], "method": "PayPal sandbox Orders API / APIMatic-generated SDK"}
+            self.save(db, current)
+            self.event(db, "provider_verified", "Read-only PayPal lookup matched the saved order, capture, amount and currency.", proposal_id=pid, capture_id=remote["id"])
+            return current
+
     def reset_demo(self):
         if self.provider.mode != "simulated":
             raise GateError("SANDBOX_RESET_DISABLED", "Sandbox ledgers cannot be reset from the demo console.")
@@ -387,6 +409,11 @@ class Gateway:
             modes = [json.loads(r[0])["payment_mode"] for r in db.execute("SELECT data FROM proposals").fetchall()]
             if any(mode != "simulated" for mode in modes):
                 raise GateError("SANDBOX_RESET_DISABLED", "This database contains sandbox records. Choose a separate demo database.")
+            jobs = [json.loads(r[0]) for r in db.execute("SELECT data FROM jobs").fetchall()]
+            if any(j["state"] in ("queued", "running", "preparing") for j in jobs):
+                raise GateError("RESET_BUSY", "Wait for active jobs to finish before resetting this simulated workspace.")
+            db.execute("DELETE FROM jobs")
+            db.execute("DELETE FROM webhook_events")
             db.execute("DELETE FROM proposals")
             db.execute("DELETE FROM mandates")
             db.execute("DELETE FROM events")

@@ -2,6 +2,22 @@
 
 **Give AI agents a budget. Keep payment authority with the owner.**
 
+[Demo video and upload assets](https://github.com/Abhyuday-06/PayPal-Hackathon/releases/tag/v1.0.0) · [Submission description](submission/DEVPOST.md) · [Narration and production source](submission/)
+
+## Judge quick start
+
+Requires Python 3.12 and Node.js 22 LTS with npm. From a fresh clone:
+
+```text
+git clone https://github.com/Abhyuday-06/PayPal-Hackathon.git
+cd PayPal-Hackathon
+python scripts/start_demo.py
+```
+
+The launcher installs missing app dependencies and starts [the isolated judge workspace](http://127.0.0.1:3100). Click **Explore simulated demo**. Review the labelled recorded AI mission, approve its exact carts, execute both simulated payments, inspect receipts, replay them, and run the failure lab. **No PayPal keys, Docker, model download or paid account are needed for this interactive path.** Use **Load recorded AI mission** to start another example. Stop both services with Ctrl+C.
+
+This workspace deliberately simulates payments and labels recorded model output. It does not claim fresh AI inference or real PayPal calls. The video and evidence below demonstrate actual local-model runs and confirmed PayPal sandbox captures. Live model/payment setup follows below. The local judge workspace is separate from the private PayPal ledger and cannot enter PayPal mode.
+
 AgentGate combines a real Ollama shopping planner, exact-cart approval, atomic shared-budget reservations, PayPal sandbox checkout/capture, a PostgreSQL ledger, and a reproducible evaluation console. The agent proposes purchases; owner approval and PayPal buyer approval remain separate steps.
 
 The v0.3 recording mission coordinates two bounded planner calls: Iris chooses audio input, then Nova receives its cart and the remaining planning budget to choose supporting gear. Rejected attempts receive policy feedback and a feasible catalogue for replanning. Actual suggestions, catalogue reads, checks and fingerprints are inspectable and downloadable. Planning does not reserve funds; exact mission carts are approved together atomically.
@@ -20,6 +36,8 @@ Recorded local benchmark: 60 trials, 12 unsafe suggestions, all 12 blocked, zero
 A separate recorded mission evaluation covers six cases each on Gemma and Qwen: **5/6 and 6/6 expected carts matched**, respectively; 34 model attempts in total and zero policy-violating suggestions accepted. These are different evaluations and should not be combined into one accuracy claim. New local missions use Qwen based on this limited comparison.
 
 This is a single-owner sandbox prototype, with test money and a small owned storefront. [Threat model](docs/THREAT_MODEL.md) explains its boundaries.
+
+The fresh submission checkout completed as $80 and $20 PayPal sandbox captures, independently verified against their provider orders. Its budget recorded $100 spent and $0 reserved. The Payment evidence view supports new read-only provider verification and JSON export. Replays return the same capture IDs.
 
 ## Fresh local setup (PowerShell)
 
@@ -82,6 +100,6 @@ Set `TEST_DATABASE_URL` to a dedicated test PostgreSQL database to include integ
 - [Current project status](docs/PROJECT_SPEC.md)
 - [External proposal-only agent example](docs/AGENT_INTEGRATION.md)
 
-Hosting configuration is prepared; public deployment and repository release are pending. Real hosted webhook delivery, independent usability feedback, supported Context Plugin registration and the final video remain open. The generated PayPal SDK is integrated and verified; Context Plugin registration is not claimed.
+Public source, MIT licence, recorded demo, captions, thumbnail and submission copy are included. The GitHub release provides the upload-ready video; it must still be uploaded publicly to YouTube and linked on Devpost. Public hosting is optional under the rules; the complete local judge launcher provides a working interactive build. Hosting configuration is prepared, with no live hosted deployment claimed. Real hosted webhook delivery, independent usability feedback and supported Context Plugin registration remain open. The generated PayPal SDK is integrated and verified; Context Plugin registration is not claimed.
 
 MIT licensed. No prize or production security guarantee is claimed.

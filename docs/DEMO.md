@@ -1,39 +1,40 @@
-# Three-minute demo and evidence
+# Final demo and verified evidence
 
-## Script
+The narrated video, captions and thumbnail are available in the [v1.0.0 release](https://github.com/Abhyuday-06/PayPal-Hackathon/releases/tag/v1.0.0). The production source and full narration are in `submission/`. The cut is approximately 2 minutes 46 seconds, with actual app footage, annotated chapters, camera zooms and word-timed English captions. Loading/setup is removed.
 
-**0:00–0:20 — Problem.** “Two shopping agents can each make a reasonable recommendation and still overspend their shared budget. AgentGate coordinates a purchase mission and keeps payment authority with the owner.” Open Recording mission with a fresh $100 budget.
+## Story
 
-**0:20–0:55 — Actual AI and coordination.** Plan a recording setup. Show Iris's audio input, the budget handed to Nova and the actual supporting-gear choice. Use the saved Gemma trace to show its $45 light rejected against $20 remaining, then its actual $20 cable replan. Label that trace as recorded; a live Qwen run may choose the compliant cable immediately. Inspect the model context and authoritative price check.
+1. The audience is developers building purchasing agents; prompts alone do not coordinate shared budgets or establish payment authority.
+2. A real local-model recording mission proposes an $80 microphone, rejects a $45 light against $20 remaining, and records the actual $20 cable replan.
+3. The owner reviews exact carts and approves the $100 set atomically. Planning and reservations are visibly distinct.
+4. Following separate sandbox buyer approvals, the server captures the $80 and $20 orders and independently verifies their receipts against PayPal.
+5. Receipt replay preserves the original capture; the explicitly simulated failure lab demonstrates concurrency, cart changes, expiry and replay controls.
+6. The recorded two-model evaluation retains successful and failed tasks, with raw evidence downloads.
+7. The public source includes proposal-only agent integration and a credential-free, simulated judge launcher.
 
-**0:55–1:35 — Payment boundary.** Review and approve the exact mission carts together. Show the planned allocation becoming an actual reservation. Then show PayPal sandbox buyer approval and a completed receipt. A full mission payment video still requires the owner/buyer to complete the new carts; do not label the earlier $20 receipt as this new $100 mission. Replay a completed receipt to show spent totals remain unchanged.
+Planning/approval footage and payment footage come from matching actual runs. The opening conflict diagram is illustrative, and all payments use test money. No account credentials or buyer login footage is published. See `submission/README.md` for provenance.
 
-**1:35–2:00 — Untrusted listings and failure controls.** Show the editable seller experiment and its actual recorded result. The latest tested malicious-listing run was resisted by the model; do not claim successful compromise. The isolated Failure lab can separately demonstrate concurrent overspending and lost-response/replay controls with explicitly simulated fault inputs.
+## Fresh completed PayPal mission
 
-**2:00–2:35 — Measured model behavior.** Open Live benchmark. Show the separate six-case mission comparison: Gemma matched 5/6 expected carts, Qwen 6/6; neither accepted a policy violation. Inspect the failed Gemma quantity-override mission and download the raw report. The earlier 60-trial prompt-only comparison remains a separate evaluation: 12 unsafe suggestions blocked and 70% exact task matching.
+| Item | Order | Completed capture | Amount |
+|---|---|---|---:|
+| Microphone | `16921357L95113718` | `1WS730284T000071P` | $80 USD |
+| Cable kit | `3EK48344DY6010040` | `90F18819DJ870472M` | $20 USD |
 
-**2:35–2:55 — Architecture and takeaway.** Point to the audit trail and PostgreSQL persistence. “The model proposes. Exact-cart owner approval reserves budget atomically. PayPal buyer approval and authoritative amount/merchant checks precede capture. Uncertain outcomes hold funds until recovery.”
+Both orders were approved by the sandbox buyer, captured through the gateway, and independently verified using the APIMatic-generated PayPal Server SDK. The mission ledger showed **$100 spent, $0 reserved**. The original $20 capture `4B477058BG442852M` remains preserved as earlier integration evidence.
 
-## Verified local evidence
+## Validation
 
-- PayPal sandbox order: `93X87952FC4790325`.
-- Completed $20 USD capture: `4B477058BG442852M`.
-- Replay returned the original receipt, with $20 spent, $0 reserved and $80 available in the original $100 budget.
-- APIMatic-generated PayPal Server SDK 2.4.0 independently read the completed order and confirmed the recorded receipt.
-- The migrated PostgreSQL ledger retained that receipt and the completed benchmark.
-- Automated suite: 85 passed, one migration test skipped for its SQLite parameter; PostgreSQL 17 integration tests were included. Frontend production build passed. Browser verification covered sign-in/out, protected routes, mission coordination/replanning, atomic $100 approval/release, evidence downloads, report rendering, capture replay and layouts at 360/390 pixels.
-- A live Gemma mission prepared $80 audio input plus a $20 cable after rejecting a $45 light against the $20 remaining planning budget. Its earlier unsuccessful three-attempt light plan remains in history.
-- An external Nova process submitted a real model suggestion using only a proposal credential. It received no approval/capture authority.
-- The separate 12-mission evaluation retained 34 actual model attempts across Gemma and Qwen. Current local missions use Qwen based on this limited comparison; the catalogue is still a small demo storefront.
+- 89 automated tests passed, including PostgreSQL 17 and SQLite coverage; one migration parameter is intentionally skipped for SQLite.
+- Next.js 16.4.4 production build passed; npm dependency audit reported zero vulnerabilities.
+- Browser verification covered owner authentication, foreign-origin rejection, disabled demo entry in the PayPal workspace, recorded-output labels, full simulated approval/payment/replay, evidence downloads and 360/390-pixel layouts.
+- Six mission cases per model: Gemma 5/6 expected carts, Qwen 6/6; zero policy violations accepted across 34 actual model attempts. Small synthetic scope, no general model-ranking claim.
+- The final media QA report records dimensions, codecs, duration, loudness, decoding and caption checks. A separate optional local speech recognizer checks the audio transcription.
 
-The sandbox represents test money, not a production charge. Webhook ingestion is tested with mocked signature responses; real remote webhook delivery still needs hosted registration and verification. Public hosting, public repository release, independent user feedback and a final video submission remain separate tasks.
+## Remaining publication and validation steps
+
+Upload the video publicly to YouTube using `submission/YOUTUBE.md`, then paste its public URL and `submission/DEVPOST.md` into the Devpost entry. A GitHub MP4 is not a substitute for the required YouTube link. Independent user feedback and real hosted webhook delivery are not claimed. Public hosting is optional; the documented local judge launcher provides the interactive build.
 
 ## User feedback to collect
 
-Ask three people to use the console without coaching. Have each describe available versus reserved budget, propose an allowed cart, explain a blocked request, identify the payment mode, and locate its receipt. Record completion time, misunderstood labels and one improvement suggestion. Obtain permission before recording someone or including their comments. No independent usability results have been collected yet.
-
-## Resume wording
-
-“Built AgentGate, an AI purchase policy gateway using Next.js, FastAPI, PostgreSQL and PayPal sandbox APIs; implemented atomic shared-budget reservations, immutable cart approval, durable payment recovery and receipt replay protection. Evaluated 60 local-model trials: blocked 12 policy-violating suggestions, with 70% task accuracy.”
-
-Add a prize only after it is awarded. Add hosted/public links only after they work.
+Ask three people to use the console without coaching: distinguish planned versus reserved funds, explain a rejected cart, locate a receipt, and identify simulation versus PayPal sandbox. Record completion times, misunderstood labels and improvement suggestions. No independent usability results have been collected.

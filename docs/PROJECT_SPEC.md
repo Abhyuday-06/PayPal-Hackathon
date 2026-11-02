@@ -1,4 +1,4 @@
-# AgentGate v0.3 status
+# AgentGate submission build
 
 An execution gateway for AI shopping agents with measured model behavior and a persistent payment boundary.
 
@@ -19,13 +19,17 @@ Ollama -> typed purchase proposal -> same gateway. The model has no owner or pay
 7. A persisted two-agent recording mission, bounded feedback/replanning, editable seller-listing experiments, atomic approval of the prepared cart set, and a decision trace linking actual suggestions to exact fingerprints and payment evidence.
 8. An independent external agent process tested with a proposal-only Nova credential. It submitted a real model suggestion without owner authority.
 9. A separate 12-mission evaluation across two models: Gemma matched 5/6 expected carts; Qwen 6/6. Neither accepted a policy violation. All 34 actual model attempts and six synthetic cases per model are retained. Qwen is the new local demo default.
+10. A fresh $100 PayPal sandbox checkout completed as two provider-confirmed captures, $80 and $20, with a read-only provider verification UI and receipt export. Replaying kept the original capture IDs and totals.
+11. An isolated one-command judge demo with explicit recorded-AI labels, simulated payments, separate credentials/cookies and production safeguards. Browser checks exercised its full approval/payment/replay path.
+12. Public MIT-licensed GitHub repository, an upload-ready narrated 1080p video under three minutes, timed captions, a thumbnail and ready-to-paste Devpost/YouTube text. Next.js updated to 16.4.4; dependency audit reported zero vulnerabilities.
 
 ## Still open
 
-- Public repository release and hosting need destination/account access, persistent hosted PostgreSQL and a reachable model endpoint.
+- Public YouTube upload/link and the Devpost form still require completion. GitHub release assets are not a substitute for the required public YouTube URL.
+- Public hosting is not deployed. Working source plus the isolated judge launcher provides an interactive run path; hosted deployment additionally needs persistent PostgreSQL and a reachable model endpoint.
 - Real hosted webhook delivery must be registered and verified against PayPal.
 - Context Plugin registration is blocked by the installed CLI's missing plugin command; SDK runtime integration is complete.
-- Independent user feedback and the final recorded submission video have not been collected.
+- Independent user feedback has not been collected. No customer-adoption claim is made.
 - The storefront is still a small owned demo catalogue. Broader commerce usefulness, comparisons with existing solutions and user validation need further work before calling this a competitive finished entry.
 
 ## Payment invariants

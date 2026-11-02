@@ -2,7 +2,7 @@ import { createHash, createHmac, randomBytes, timingSafeEqual } from "node:crypt
 import { cookies } from "next/headers";
 import type { NextRequest } from "next/server";
 
-export const SESSION_COOKIE = "agentgate_owner";
+export const SESSION_COOKIE = process.env.AGENTGATE_DEMO_MODE === "true" ? "agentgate_demo_owner" : "agentgate_owner";
 export const SESSION_SECONDS = 8 * 60 * 60;
 
 function key() {

@@ -19,6 +19,7 @@ from .webhooks import ingest_webhook, reconcile_job
 from .limits import RateLimiter
 from .config import validate_deployment
 from .missions import run_mission, mission_view, budget_for
+from .demo import recorded_mission
 
 ROOT = Path(__file__).resolve().parents[1]
 load_dotenv(ROOT / ".env")
@@ -38,6 +39,11 @@ gateway = Gateway(os.getenv("DATABASE_URL") or str(db_path), provider)
 @asynccontextmanager
 async def lifespan(app):
     jobs = Jobs(gateway)
+    if os.getenv("AGENTGATE_DEMO_MODE") == "true":
+        if provider.mode != "simulated":
+            raise RuntimeError("Judge demo mode requires simulated payments.")
+        if not jobs.list("mission"):
+            recorded_mission(gateway)
     worker = Worker(jobs, {"benchmark": lambda job: run_benchmark(job, jobs, os.getenv("OLLAMA_URL", "http://localhost:11434"), job["payload"]["model"]), "mission": lambda job: run_mission(job, jobs, gateway, os.getenv("OLLAMA_URL", "http://localhost:11434")), "reconcile": lambda job: reconcile_job(gateway, jobs, job)})
     worker.start()
     yield
@@ -162,6 +168,11 @@ def start_mission(body: MissionRequest):
         return report_view(jobs.enqueue("mission", {**body.model_dump(), "model": os.getenv("OLLAMA_MODEL", "qwen2.5:7b")}, db=db))
 
 
+@app.post("/api/demo/recorded-mission", dependencies=[Depends(owner)])
+def replay_recorded_mission():
+    return mission_view(gateway, recorded_mission(gateway))
+
+
 @app.get("/api/missions/{jid}", dependencies=[Depends(owner)])
 def get_mission(jid: str):
     return mission_view(gateway, Jobs(gateway).get(jid))
@@ -223,6 +234,11 @@ def reconcile(pid: str):
     return gateway.reconcile(pid)
 
 
+@app.post("/api/proposals/{pid}/verify", dependencies=[Depends(owner)])
+def verify_receipt(pid: str):
+    return gateway.verify_receipt(pid)
+
+
 @app.post("/api/agent/run", dependencies=[Depends(owner)])
 def agent_run(body: AgentRun):
     return plan_purchase(gateway, body.prompt, body.agent, os.getenv("OLLAMA_URL", "http://localhost:11434"), os.getenv("OLLAMA_MODEL", "qwen2.5:7b"), body.mandate_id)
@@ -254,7 +270,10 @@ def lab():
 
 @app.post("/api/demo/reset", dependencies=[Depends(owner)])
 def reset():
-    return gateway.reset_demo()
+    gateway.reset_demo()
+    if os.getenv("AGENTGATE_DEMO_MODE") == "true":
+        recorded_mission(gateway)
+    return gateway.state()
 
 
 @app.get("/agent/catalog")

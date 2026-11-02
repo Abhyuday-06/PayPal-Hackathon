@@ -1,0 +1,6 @@
+{
+  "name": "agentgate-submission-production",
+  "private": true,
+  "scripts": { "capture": "node capture_walkthrough.cjs", "cards": "node create_cards.cjs" },
+  "devDependencies": { "playwright": "1.62.1" }
+}

@@ -8,7 +8,7 @@ async function proxy(request: NextRequest, context: { params: Promise<{ path: st
   if (!await authenticated()) return NextResponse.json({ message: "Sign in to the owner console." }, { status: 401 });
   const { path } = await context.params;
   const route = path.join("/");
-  const allowed = /^(state|mandates|proposals|proposals\/[a-f0-9]{32}\/(approve|order|capture|cancel|renew|reconcile)|agent\/run|lab\/run|demo\/reset|benchmarks|benchmarks\/[a-f0-9]{32}|missions|missions\/[a-f0-9]{32}(\/approve)?|evaluations\/missions)$/;
+  const allowed = /^(state|mandates|proposals|proposals\/[a-f0-9]{32}\/(approve|order|capture|cancel|renew|reconcile|verify)|agent\/run|lab\/run|demo\/reset|demo\/recorded-mission|benchmarks|benchmarks\/[a-f0-9]{32}|missions|missions\/[a-f0-9]{32}(\/approve)?|evaluations\/missions)$/;
   if (!allowed.test(route)) return NextResponse.json({ message: "Unknown gateway route." }, { status: 404 });
   if (request.method !== "GET") {
     if (!sameOrigin(request)) return NextResponse.json({ message: "Use the same-origin owner console." }, { status: 403 });
