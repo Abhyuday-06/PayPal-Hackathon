@@ -41,6 +41,6 @@ This is a single-owner prototype with a small server-owned catalogue and two bou
 ## Links for submission
 
 - Public source: https://github.com/Abhyuday-06/PayPal-Hackathon
-- Release/video download: https://github.com/Abhyuday-06/PayPal-Hackathon/releases/tag/v1.0.0
+- Release/video download: https://github.com/Abhyuday-06/PayPal-Hackathon/releases/tag/v1.1.0
 - Working build instructions: repository README, “Judge quick start”.
 - Public YouTube URL: add after uploading the final release video.

@@ -2,7 +2,7 @@
 
 **Give AI agents a budget. Keep payment authority with the owner.**
 
-[Demo video and upload assets](https://github.com/Abhyuday-06/PayPal-Hackathon/releases/tag/v1.0.0) · [Submission description](submission/DEVPOST.md) · [Narration and production source](submission/)
+[Demo video and upload assets](https://github.com/Abhyuday-06/PayPal-Hackathon/releases/tag/v1.1.0) · [Submission description](submission/DEVPOST.md) · [Narration and production source](submission/)
 
 ## Judge quick start
 

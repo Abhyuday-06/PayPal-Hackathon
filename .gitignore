@@ -11,6 +11,7 @@ node_modules/
 .next/
 .next-demo/
 submission/render/
+submission/render-v2/
 out/
 test-results/
 playwright-report/

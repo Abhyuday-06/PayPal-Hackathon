@@ -12,8 +12,10 @@ FOLDER=ROOT/"submission/render"
 
 
 def main():
-    parser=argparse.ArgumentParser();parser.add_argument("--transcribe",action="store_true");args=parser.parse_args()
-    video=FOLDER/"AgentGate-Hackathon-Demo.mp4"
+    global FOLDER
+    parser=argparse.ArgumentParser();parser.add_argument("--transcribe",action="store_true");parser.add_argument("--cursor",action="store_true");args=parser.parse_args()
+    if args.cursor:FOLDER=ROOT/"submission/render-v2"
+    video=FOLDER/("AgentGate-Cursor-Walkthrough.mp4" if args.cursor else "AgentGate-Hackathon-Demo.mp4")
     probe=json.loads(subprocess.check_output(["ffprobe","-v","error","-show_format","-show_streams","-of","json",str(video)],text=True))
     v=next(s for s in probe["streams"] if s["codec_type"]=="video");a=next(s for s in probe["streams"] if s["codec_type"]=="audio")
     assert (v["width"],v["height"],v["codec_name"])==(1920,1080,"h264")
@@ -35,7 +37,7 @@ def main():
         segments,info=model.transcribe(np.frombuffer(pcm,dtype=np.float32).copy(),beam_size=5,language="en")
         text=" ".join(s.text.strip() for s in segments)
         (FOLDER/"independent-transcript.txt").write_text(text,encoding="utf-8")
-        expected=" ".join(s["narration"] for s in json.loads((ROOT/"submission/storyboard.json").read_text(encoding="utf-8"))["scenes"])
+        expected=" ".join(s["narration"] for s in json.loads((ROOT/("submission/storyboard-v2.json" if args.cursor else "submission/storyboard.json")).read_text(encoding="utf-8"))["scenes"])
         normal=lambda s:re.findall(r"[a-z0-9]+",s.lower())
         report["independent_asr_similarity"]=round(difflib.SequenceMatcher(None,normal(expected),normal(text),autojunk=False).ratio(),3)
         report["asr_note"]="Small local recognizer; model/product names may differ. Narration and word-timed captions come from the reviewed script."

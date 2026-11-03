@@ -2,7 +2,7 @@
 
 Title: **AgentGate — AI Purchasing, Exact Approval & PayPal Payment Evidence**
 
-Upload `AgentGate-Hackathon-Demo.mp4` from the GitHub release assets. Set visibility to **Public**. Upload `AgentGate-Captions.srt` or `.vtt` as English captions and use the supplied thumbnail. Wait for HD processing and confirm playback while signed out. The final file is under three minutes.
+Upload `AgentGate-Cursor-Walkthrough.mp4` from the v1.1.0 GitHub release assets. Set visibility to **Public**. Upload `AgentGate-Captions.srt` or `.vtt` as English captions and use the supplied thumbnail. Wait for HD processing and confirm playback while signed out. The final file is under three minutes. This revised version includes larger interface text, a visible cursor, click highlights and action-timed zooms.
 
 ## Description
 
@@ -13,7 +13,7 @@ https://github.com/Abhyuday-06/PayPal-Hackathon
 
 MIT licensed. Python/FastAPI, Next.js, PostgreSQL/SQLite, local Ollama models and the APIMatic-generated PayPal Server SDK.
 
-Video: actual app recordings with loading/setup removed, edited across matching live planning demonstrations and the confirmed checkout run. Narration is AI-generated. All payments use PayPal sandbox test money. The failure lab and credential-free judge workspace are explicitly simulated; recorded model output is labelled. The small synthetic evaluations do not establish production security or universal attack resistance.
+Video: actual app recordings with loading/setup removed, edited across matching live planning demonstrations and the completed checkout evidence. The payment segment shows fresh read-only verification of the existing $80 and $20 captures; it does not initiate additional payments. Narration is AI-generated. All payments use PayPal sandbox test money. The failure lab and credential-free judge workspace are explicitly simulated; recorded model output is labelled. The small synthetic evaluations do not establish production security or universal attack resistance.
 
 The working catalogue is a small owned demo storefront. The project does not claim production autonomous-payment authorization, AP2 compliance or independent customer adoption.
 

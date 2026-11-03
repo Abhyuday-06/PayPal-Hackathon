@@ -1,0 +1,56 @@
+{
+  "title": "AgentGate — Payment control for AI agents",
+  "voice": "en-US-GuyNeural",
+  "rate": "+15%",
+  "scenes": [
+    {
+      "id": "01-problem",
+      "chapter": "The problem",
+      "headline": "Agent intent needs a payment boundary.",
+      "narration": "Teams are building AI agents that buy things. But two helpful agents can still overspend one budget, follow an untrusted seller listing, or retry a payment twice. AgentGate gives developers an explicit boundary between an agent's suggestion and permission to pay."
+    },
+    {
+      "id": "02-mission",
+      "chapter": "A real purchasing mission",
+      "headline": "One goal. Two agents. One shared budget.",
+      "narration": "Here is a working example: assemble a recording setup for one hundred dollars. Iris selects the audio input. Nova receives Iris's cart and the remaining planning budget to choose supporting gear. These recommendations come from a real local language model. The server owns prices, merchants, and policy."
+    },
+    {
+      "id": "03-replan",
+      "chapter": "Policy becomes feedback",
+      "headline": "A rejected suggestion becomes a better plan.",
+      "narration": "Iris chooses an eighty dollar microphone. Nova first suggests a forty five dollar light, even though only twenty dollars remains. AgentGate rejects that suggestion and returns precise feedback with affordable options. Nova then selects the twenty dollar cable kit. The trace preserves the actual model outputs, the checks, and the revised plan. No replacement cart is silently invented."
+    },
+    {
+      "id": "04-approval",
+      "chapter": "The owner keeps authority",
+      "headline": "Planning is not permission to spend.",
+      "narration": "Planning has reserved zero dollars. The owner reviews both exact carts, then approves them together. The gateway rechecks current funds and atomically reserves the combined one hundred dollars, or reserves none. Cart fingerprints bind the reviewed products, quantities, prices, merchant, and currency. The model has no approval or capture tool."
+    },
+    {
+      "id": "05-paypal-live",
+      "chapter": "Actual PayPal sandbox evidence",
+      "headline": "Two approved orders. Two verified captures.",
+      "narration": "Here is the completed PayPal mission, after separate buyer approvals. The microphone and cable orders returned completed receipts for eighty and twenty dollars, matching the one hundred dollar budget. Now we independently read the original orders through PayPal's API using the generated server SDK, and check each capture, amount, currency, and merchant. All payments shown use sandbox test money."
+    },
+    {
+      "id": "06-recovery",
+      "chapter": "Retry without paying twice",
+      "headline": "Keep the receipt. Keep the budget correct.",
+      "narration": "Replaying returns the same capture receipt, without a new charge. Uncertain outcomes keep their reservation until reconciliation. The failure lab exercises concurrent overspending, changed carts, expired approval, and replay protection in an isolated simulation. Seller descriptions can also be edited to inspect the model's actual response, without assuming an attack succeeded."
+    },
+    {
+      "id": "07-evaluation-final",
+      "chapter": "Evidence, including the misses",
+      "headline": "Measure usefulness separately from policy safety.",
+      "narration": "We also tested six synthetic mission cases on each of two models. The smaller model matched five expected carts. The larger model matched all six. Neither accepted a policy violating cart in this small evaluation. Every attempt, including the failed task, is downloadable. These results are a reproducible starting point, not a production security guarantee.",
+      "shot": "07-evaluation"
+    },
+    {
+      "id": "08-close-final",
+      "chapter": "Built for developers",
+      "headline": "Delegate the task. Retain payment authority.",
+      "narration": "External agents connect with proposal only credentials. Each agent can view its assigned budget and suggest a cart. Approval and capture require the owner credential. The public, MIT licensed repository includes the working build, tests, raw evaluations, and a one command interactive judge demo. AgentGate helps teams delegate purchasing while keeping approval, budget, and payment evidence connected."
+    }
+  ]
+}
