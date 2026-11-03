@@ -1,6 +1,6 @@
 # Final demo and verified evidence
 
-The narrated video, captions and thumbnail are available in the [v1.0.0 release](https://github.com/Abhyuday-06/PayPal-Hackathon/releases/tag/v1.0.0). The production source and full narration are in `submission/`. The cut is approximately 2 minutes 50 seconds, with actual app footage, annotated chapters, camera zooms and word-timed English captions. Loading/setup is removed.
+The narrated cursor walkthrough, captions and thumbnail are available in the [v1.1.0 release](https://github.com/Abhyuday-06/PayPal-Hackathon/releases/tag/v1.1.0) and the video is [on YouTube](https://www.youtube.com/watch?v=1ey3pn47ujk). It runs 169 seconds, with actual app footage, visible pointer and click highlights, action-timed zooms, and word-timed English captions. Loading/setup is removed.
 
 ## Story
 
@@ -25,7 +25,7 @@ Both orders were approved by the sandbox buyer, captured through the gateway, an
 
 ## Validation
 
-- 89 automated tests passed, including PostgreSQL 17 and SQLite coverage; one migration parameter is intentionally skipped for SQLite.
+- Previous GitHub Actions revision: 92 backend tests passed with PostgreSQL 17 and SQLite coverage (one intentional skip). This working revision's local check passed 60 backend tests with one PostgreSQL-only integration skip, plus the frontend typecheck and production build; CI provides the PostgreSQL 17 integration run on push.
 - Next.js 16.4.4 production build passed; npm dependency audit reported zero vulnerabilities.
 - Browser verification covered owner authentication, foreign-origin rejection, disabled demo entry in the PayPal workspace, recorded-output labels, full simulated approval/payment/replay, evidence downloads and 360/390-pixel layouts.
 - Six mission cases per model: Gemma 5/6 expected carts, Qwen 6/6; zero policy violations accepted across 34 actual model attempts. Small synthetic scope, no general model-ranking claim.
@@ -33,7 +33,7 @@ Both orders were approved by the sandbox buyer, captured through the gateway, an
 
 ## Remaining publication and validation steps
 
-Upload the video publicly to YouTube using `submission/YOUTUBE.md`, then paste its public URL and `submission/DEVPOST.md` into the Devpost entry. A GitHub MP4 is not a substitute for the required YouTube link. The hosted judge preview is https://agentgate-demo-console-2026.onrender.com and uses recorded AI output with simulated payments; the video carries the live-model and PayPal sandbox evidence. Independent user feedback and real hosted webhook delivery are not claimed. The documented local judge launcher remains available as an alternative.
+Paste the YouTube URL and `submission/DEVPOST.md` copy into the Devpost entry. The hosted judge preview is https://agentgate-demo-console-2026.onrender.com and uses live Vertex AI planning with simulated payments; the video carries the PayPal sandbox evidence. Independent user feedback and real hosted webhook delivery are not claimed. The documented local judge launcher remains available as an alternative.
 
 ## User feedback to collect
 

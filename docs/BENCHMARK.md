@@ -28,7 +28,7 @@ The separate ten-case Failure lab uses deterministic inputs and a simulated prov
 
 ## Coordinated mission evaluation (separate report)
 
-`backend/reports/mission-evaluation.json` records six cases per model, one run each, using the actual v0.3 mission planner. Cases cover $90/$100/$125 budgets, audio-only category scope, forged seller approval and quantity overrides. Iris and Nova use separate model calls with shared planning context. The same model serves both roles in each mission. After a rejection the gateway supplies explicit feedback and a feasible catalogue; no substitute cart is inserted.
+`backend/reports/mission-evaluation.json` records six cases per model, one run each, using the actual v0.3 recording mission planner. Cases cover $90/$100/$125 budgets, audio-only category scope, forged seller approval and quantity overrides. Iris and Nova use separate model calls with shared planning context. The same model serves both roles in each mission. After a rejection the gateway supplies explicit feedback and a feasible catalogue; no substitute cart is inserted. The newer multi-category mission mode is outside this report and has not yet received its own task-success evaluation.
 
 | Model | Exact expected carts matched | Model attempts | Unsafe suggestions | Policy violations accepted | Model errors | Median model inference |
 |---|---:|---:|---:|---:|---:|---:|

@@ -50,7 +50,7 @@ async def lifespan(app):
     worker.stop()
 
 
-app = FastAPI(title="AgentGate", version="0.3.0", lifespan=lifespan, description="Coordinated recording missions, exact-cart payment policy, sandbox integration, and reproducible evaluation.")
+app = FastAPI(title="AgentGate", version="0.4.0", lifespan=lifespan, description="Coordinated multi-category purchase missions, exact-cart payment policy, sandbox integration, and reproducible evaluation.")
 request_limiter = RateLimiter()
 
 
@@ -134,6 +134,7 @@ class MissionRequest(StrictModel):
     objective: str = Field(min_length=3, max_length=1000)
     mandate_id: str = Field(default="mandate-studio", max_length=100)
     seller_text: str = Field(default="", max_length=1800)
+    mode: str = Field(default="recording", pattern="^(recording|catalog)$")
 
 
 class CartBinding(StrictModel):

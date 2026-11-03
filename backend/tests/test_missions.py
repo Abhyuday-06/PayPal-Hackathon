@@ -6,9 +6,12 @@ from agentgate.missions import run_mission, mission_view
 from test_gateway import gate
 
 
-def launch(gate, seller_text=""):
+def launch(gate, seller_text="", mode=None):
     jobs = Jobs(gate)
-    jobs.enqueue("mission", {"mandate_id": "mandate-studio", "objective": "Assemble a useful recording setup within $100.", "model": "test-model", "seller_text": seller_text})
+    payload = {"mandate_id": "mandate-studio", "objective": "Assemble a useful setup within $100.", "model": "test-model", "seller_text": seller_text}
+    if mode:
+        payload["mode"] = mode
+    jobs.enqueue("mission", payload)
     return jobs, jobs.claim()
 
 
@@ -36,6 +39,41 @@ def test_mission_replans_using_teammate_allocation_without_reserving_or_paying(g
     bindings = [{"id": p["id"], "cart_hash": p["cart_hash"]} for p in result["proposals"]]
     gate.approve_many(bindings, "mandate-studio")
     assert gate.state()["mandates"][0]["reserved_cents"] == 10000
+
+
+def test_catalog_mission_plans_across_categories_and_keeps_optional_complement_within_remainder(gate):
+    jobs, job = launch(gate, mode="catalog")
+    calls = []
+    def planner(prompt, mandate, catalog, url, model):
+        context = json.loads(prompt)
+        calls.append((context, mandate["available_cents"], {p["sku"] for p in catalog}))
+        return fake_plan("webcam-60" if len(calls) == 1 else "keyboard-40")
+
+    run_mission(job, jobs, gate, "unused", planner)
+    result = mission_view(gate, jobs.get(job["id"]))
+
+    assert {"webcam-60", "stand-25", "headset-35"} <= calls[0][2]
+    assert calls[1][0]["teammate_carts"][0]["items"][0]["sku"] == "webcam-60"
+    assert calls[1][1] == 4000
+    assert result["summary"]["primary_planned"] is True
+    assert result["summary"]["complementary_planned"] is True
+    assert result["summary"]["audio_planned"] is False
+    assert result["summary"]["support_planned"] is False
+    assert [p["amount_cents"] for p in result["proposals"]] == [6000, 4000]
+    assert all(p["state"] == "pending" for p in result["proposals"])
+
+
+def test_catalog_mission_can_finish_with_primary_only_when_no_complement_is_useful(gate):
+    jobs, job = launch(gate, mode="catalog")
+    answers = iter([fake_plan("webcam-60"), {**fake_plan("webcam-60"), "items": [], "reason": "The primary item already meets the goal."}])
+    run_mission(job, jobs, gate, "unused", lambda *args: next(answers))
+    result = mission_view(gate, jobs.get(job["id"]))
+
+    assert [row["decision"] for row in result["rows"]] == ["ready", "no_fit"]
+    assert result["summary"]["primary_planned"] is True
+    assert result["summary"]["complementary_planned"] is False
+    assert result["summary"]["planned_cents"] == 6000
+    assert len(result["proposals"]) == 1
 
 
 def test_atomic_mission_approval_rechecks_budget_and_never_partially_reserves(gate):

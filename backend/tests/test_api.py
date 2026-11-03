@@ -50,6 +50,15 @@ def test_missions_require_owner_and_cannot_embed_payment_authority(client):
     assert client.get(f"/api/missions/{jid}", headers=h).json()["proposals"] == []
 
 
+def test_mission_mode_is_limited_to_supported_planning_flows(client):
+    headers = {"X-Owner-Token": api.OWNER_TOKEN}
+    invalid = client.post("/api/missions", headers=headers, json={"objective": "Prepare a work desk", "mode": "marketplace"})
+    assert invalid.status_code == 422
+    response = client.post("/api/missions", headers=headers, json={"objective": "Prepare a work desk", "mode": "catalog"})
+    assert response.status_code == 200
+    assert response.json()["payload"]["mode"] == "catalog"
+
+
 def test_full_owner_flow_and_replay(client):
     h = {"X-Owner-Token": api.OWNER_TOKEN}
     p = client.post("/api/proposals", headers=h, json={"agent": "iris", "items": [{"sku": "cable-20", "quantity": 1}]}).json()

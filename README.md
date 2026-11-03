@@ -22,7 +22,7 @@ This workspace deliberately simulates payments and labels recorded model output.
 
 AgentGate combines structured AI planning (Ollama locally, Google Cloud Vertex AI through ADC when configured, or optional Gemini AI Studio), exact-cart approval, atomic shared-budget reservations, PayPal sandbox checkout/capture, a PostgreSQL ledger, and a reproducible evaluation console. The agent proposes purchases; owner approval and PayPal buyer approval remain separate steps.
 
-The v0.3 recording mission coordinates two bounded planner calls: Iris chooses audio input, then Nova receives its cart and the remaining planning budget to choose supporting gear. Rejected attempts receive policy feedback and a feasible catalogue for replanning. Actual suggestions, catalogue reads, checks and fingerprints are inspectable and downloadable. Planning does not reserve funds; exact mission carts are approved together atomically.
+The purchase mission supports goal-based planning across a small, server-owned sample catalogue of audio, video, lighting, accessories and office gear. Iris selects one primary item; Nova receives that cart and the remaining planning budget and may add one useful complement. A guided recording example remains available. Rejected attempts receive policy feedback and a feasible shortlist for replanning. Actual suggestions, catalogue reads, checks and fingerprints are inspectable and downloadable. Planning does not reserve funds; any proposed mission carts are approved together atomically. This new multi-category mode is not covered by the older six-case recording-mission evaluation. Existing budgets keep their original categories; use **Create a fresh $100 mission budget** to start with the expanded category scope.
 
 ## Verified behavior
 
@@ -31,11 +31,12 @@ The v0.3 recording mission coordinates two bounded planner calls: Iris chooses a
 - Persistent payment leases, unknown-outcome reservations, read-only reconciliation, webhook signature verification/deduplication and saved-receipt replay.
 - PostgreSQL per-budget locks; external calls happen outside database locks. SQLite remains available for local simulation.
 - Live model benchmark, raw JSON download, ten deterministic failure scenarios, configurable budgets and a responsive audit console.
+- Mission coverage checks cross-category planning, passing the primary cart's remaining budget to the second agent, optional complements, and API rejection of unsupported modes.
 - Actual $20 PayPal sandbox capture verified; replay returned the same receipt. APIMatic-generated PayPal Server SDK 2.4.0 performs authoritative order reads in the runtime adapter.
 
 Recorded local benchmark: 60 trials, 12 unsafe suggestions, all 12 blocked, zero accepted policy violations, **70% task success**. Read [methodology and limits](docs/BENCHMARK.md); the small synthetic dataset is not a production fraud evaluation.
 
-A separate recorded mission evaluation covers six cases each on Gemma and Qwen: **5/6 and 6/6 expected carts matched**, respectively; 34 model attempts in total and zero policy-violating suggestions accepted. These are different evaluations and should not be combined into one accuracy claim. New local missions use Qwen based on this limited comparison.
+A separate recorded evaluation of the guided recording mission covers six cases each on Gemma and Qwen: **5/6 and 6/6 expected carts matched**, respectively; 34 model attempts in total and zero policy-violating suggestions accepted. These are different evaluations and should not be combined into one accuracy claim. The multi-category mission mode is newer and has not yet received its own task-success evaluation. New local missions use Qwen based on this limited comparison.
 
 This is a single-owner sandbox prototype, with test money and a small owned storefront. [Threat model](docs/THREAT_MODEL.md) explains its boundaries.
 
@@ -43,7 +44,7 @@ The fresh submission checkout completed as $80 and $20 PayPal sandbox captures, 
 
 ## Fresh local setup (PowerShell)
 
-Requires Python 3.11+, Node.js 20.9+ and optionally Ollama. Run from the repository root:
+Requires Python 3.12 and Node.js 22 LTS (including npm); Ollama is optional. Run from the repository root:
 
 ```powershell
 python -m venv .venv
@@ -106,6 +107,6 @@ Set `TEST_DATABASE_URL` to a dedicated test PostgreSQL database to include integ
 - [Current project status](docs/PROJECT_SPEC.md)
 - [External proposal-only agent example](docs/AGENT_INTEGRATION.md)
 
-Public source, MIT licence, recorded demo, captions, thumbnail and submission copy are included. The GitHub release provides the upload-ready video; it must still be uploaded publicly to YouTube and linked on Devpost. The hosted judge preview is simulation-only; the video and evidence show actual local AI planning and verified PayPal sandbox captures. The full sandbox deployment blueprint is separate and not deployed. Real hosted webhook delivery, independent usability feedback and supported Context Plugin registration remain open. The generated PayPal SDK is integrated and verified; Context Plugin registration is not claimed.
+Public source, MIT licence, recorded demo, captions, thumbnail and submission copy are included. The final walkthrough is on [YouTube](https://www.youtube.com/watch?v=1ey3pn47ujk) and the Devpost draft is in `submission/DEVPOST.md`. The hosted judge preview is simulation-only; it runs live Vertex AI planning, while the video and evidence show verified PayPal sandbox captures. The full sandbox deployment blueprint is separate and not deployed. Real hosted webhook delivery, independent usability feedback and supported Context Plugin registration remain open. The generated PayPal SDK is integrated and verified; Context Plugin registration is not claimed.
 
 MIT licensed. No prize or production security guarantee is claimed.

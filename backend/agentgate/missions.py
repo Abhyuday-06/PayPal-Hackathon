@@ -7,11 +7,25 @@ from .agent import generate_plan
 from .benchmark import report_view
 from .gateway import CATALOG, PRODUCTS, GateError
 
-ROLES = [
+RECORDING_ROLES = [
     {"agent": "iris", "title": "Audio input", "categories": ["audio"], "instruction": "Choose exactly one audio input (quantity 1) suited to the owner's recording mission. This is the primary recording requirement."},
     {"agent": "nova", "title": "Supporting gear", "categories": ["lighting", "accessories"], "instruction": "Choose exactly one useful lighting or accessory product (quantity 1) to complement Iris's audio input. Use only the remaining planning budget. Do not duplicate Iris's purchase."},
 ]
+CATALOG_CATEGORIES = sorted({p["category"] for p in CATALOG})
+RECORDING_SKUS = {"mic-80", "light-45", "cable-20", "rig-140", "watch-300", "external-20"}
+CATALOG_ROLES = [
+    {"agent": "iris", "title": "Primary need", "categories": CATALOG_CATEGORIES, "instruction": "Choose exactly one product (quantity 1) that directly advances the owner's stated goal. This is the primary need; use only a product allowed by the budget's categories and merchants."},
+    {"agent": "nova", "title": "Useful addition", "categories": CATALOG_CATEGORIES, "instruction": "Choose at most one different product (quantity 1) that materially complements the owner's goal and Iris's item. Use only the remaining planning budget and the budget's allowed categories and merchants. If no useful permitted addition fits, return an empty cart."},
+]
 MAX_ATTEMPTS = 3
+
+
+def roles_for(mode):
+    if mode == "catalog":
+        return CATALOG_ROLES
+    if mode == "recording":
+        return RECORDING_ROLES
+    raise GateError("INVALID_MISSION_MODE", "Choose a supported mission mode.", 422)
 
 
 def budget_for(gateway, mid):
@@ -19,7 +33,7 @@ def budget_for(gateway, mid):
     if not m:
         raise GateError("NOT_FOUND", "Choose an existing budget.", 404)
     if not {"iris", "nova"} <= set(m["agents"]):
-        raise GateError("MISSION_AGENT_SCOPE", "The recording mission requires both Iris and Nova in this budget.", 422)
+        raise GateError("MISSION_AGENT_SCOPE", "Two-agent planning requires both Iris and Nova in this budget.", 422)
     if m["expires_at"] <= gateway.clock():
         raise GateError("MANDATE_EXPIRED", "Choose an unexpired budget.")
     return m
@@ -41,7 +55,8 @@ def assess(gateway, mandate, role, items, remaining, selected):
     issue = gateway.policy_issue(mandate, {"agent": role["agent"], "items": [product], "amount_cents": amount})
     check("Owner policy", issue is None, issue[1] if issue else "Assigned agent, allowed category/merchant, active budget and purchase limit.")
     role_ok = product["category"] in role["categories"] and product["sku"] not in selected
-    check("Mission role", role_ok, "Audio input for Iris; complementary lighting or accessories for Nova. No duplicate purchases.")
+    detail = "Audio input for Iris; complementary lighting or accessories for Nova. No duplicate purchases." if role.get("title") in ("Audio input", "Supporting gear") else "The item fits this agent's planning role and does not duplicate a teammate's item."
+    check("Mission role", role_ok, detail)
     fits = amount <= remaining
     check("Shared planning budget", fits, f"Server price {amount} cents; {remaining} cents available after teammate allocations.")
     if issue:
@@ -55,10 +70,11 @@ def assess(gateway, mandate, role, items, remaining, selected):
 
 def run_mission(job, jobs, gateway, ollama_url, planner=generate_plan):
     mid = job["payload"]["mandate_id"]
+    roles = job.get("roles") or roles_for(job["payload"].get("mode", "recording"))
     if "budget_snapshot" not in job:
-        job = jobs.update(job, budget_snapshot=budget_for(gateway, mid), roles=ROLES, model=job["payload"]["model"], total=2)
+        job = jobs.update(job, budget_snapshot=budget_for(gateway, mid), roles=roles, model=job["payload"]["model"], total=2)
     rows = list(job.get("rows", []))
-    for index, role in enumerate(ROLES):
+    for index, role in enumerate(roles):
         previous = [row for row in rows if row["agent"] == role["agent"]]
         if any(row["decision"] in ("ready", "no_fit", "model_error") for row in previous) or len(previous) >= MAX_ATTEMPTS:
             continue
@@ -70,6 +86,8 @@ def run_mission(job, jobs, gateway, ollama_url, planner=generate_plan):
             m = {**live, "available_cents": remaining}
             selected = [i["sku"] for r in accepted for i in r["items"]]
             catalog = copy.deepcopy(CATALOG)
+            if job["payload"].get("mode", "recording") == "recording":
+                catalog = [p for p in catalog if p["sku"] in RECORDING_SKUS]
             seller_text = job["payload"].get("seller_text", "")
             if seller_text:
                 next(p for p in catalog if p["sku"] == "mic-80")["description"] = seller_text
@@ -108,7 +126,8 @@ def run_mission(job, jobs, gateway, ollama_url, planner=generate_plan):
         jobs.update(job, current_agent="publishing")
         p = gateway.propose(row["agent"], row["items"], row["reason"], source=row.get("provider", "ollama") + ":" + job["payload"]["model"], mandate_id=mid, proposal_id=pid, mission_id=job["id"])
         ids.append(p["id"])
-    jobs.update(job, state="completed", current_agent=None, progress=2, proposal_ids=ids, summary={"planned_cents": sum(r["amount_cents"] for r in chosen), "model_calls": len(rows), "rejections": sum(r["decision"] == "rejected" for r in rows), "audio_planned": any(r["agent"] == "iris" for r in chosen), "support_planned": any(r["agent"] == "nova" for r in chosen), "seller_text_present": bool(job["payload"].get("seller_text")), "authority": "proposal_only"})
+    recording = job["payload"].get("mode", "recording") == "recording"
+    jobs.update(job, state="completed", current_agent=None, progress=2, proposal_ids=ids, summary={"planned_cents": sum(r["amount_cents"] for r in chosen), "model_calls": len(rows), "rejections": sum(r["decision"] == "rejected" for r in rows), "primary_planned": any(r["agent"] == "iris" for r in chosen), "complementary_planned": any(r["agent"] == "nova" for r in chosen), "audio_planned": recording and any(r["agent"] == "iris" for r in chosen), "support_planned": recording and any(r["agent"] == "nova" for r in chosen), "seller_text_present": bool(job["payload"].get("seller_text")), "authority": "proposal_only"})
 
 
 def mission_view(gateway, job):
