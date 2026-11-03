@@ -17,9 +17,9 @@ PLAN_SCHEMA = {
     }, "required": ["items", "reason"], "additionalProperties": False,
 }
 
-# The public judge preview is open to visitors. Bound live Gemini usage across
+# The public judge preview is open to visitors. Bound live inference across
 # all demo users instead of relying only on per-IP HTTP request throttling.
-_gemini_calls = RateLimiter(limit=30, window=3600)
+_live_ai_calls = RateLimiter(limit=30, window=3600)
 
 
 def configured_ai():
@@ -30,6 +30,8 @@ def configured_ai():
         return provider, os.getenv("AGENTGATE_AI_MODEL") or os.getenv("OLLAMA_MODEL", "qwen2.5:7b")
     if provider == "gemini":
         return provider, os.getenv("AGENTGATE_AI_MODEL", "gemini-3.8-flash")
+    if provider == "vertex":
+        return provider, os.getenv("AGENTGATE_AI_MODEL", "gemini-3.8-flash")
     return provider, os.getenv("AGENTGATE_AI_MODEL", "recorded qwen2.5:7b")
 
 
@@ -37,6 +39,12 @@ def ai_available():
     provider, _ = configured_ai()
     if provider == "gemini":
         return bool(os.getenv("GEMINI_API_KEY"))
+    if provider == "vertex":
+        try:
+            _, project = _vertex_credentials_and_project()
+            return bool(project)
+        except Exception:
+            return False
     return provider == "ollama"
 
 
@@ -44,8 +52,8 @@ def _gemini_plan(client, prompt, system, tools, schema, model):
     api_key = os.getenv("GEMINI_API_KEY")
     if not api_key:
         raise GateError("AI_NOT_CONFIGURED", "Live Gemini planning is not configured for this demo.", 503)
-    if os.getenv("AGENTGATE_ENV") == "demo" and not _gemini_calls.allow("hosted-demo"):
-        raise GateError("AI_RATE_LIMITED", "The shared Gemini demo reached its hourly request limit. Please try again later.", 429)
+    if os.getenv("AGENTGATE_ENV") == "demo" and not _live_ai_calls.allow("hosted-demo"):
+        raise GateError("AI_RATE_LIMITED", "The shared live AI demo reached its hourly request limit. Please try again later.", 429)
     response = client.post(
         f"https://generativelanguage.googleapis.com/v1beta/models/{quote(model, safe='')}:generateContent",
         headers={"x-goog-api-key": api_key},
@@ -66,6 +74,97 @@ def _gemini_plan(client, prompt, system, tools, schema, model):
     text = "".join(part["text"] for part in parts if isinstance(part, dict) and isinstance(part.get("text"), str))
     if not text:
         raise ValueError("Gemini returned no structured text")
+    usage = data.get("usageMetadata", {})
+    return json.loads(text), usage.get("promptTokenCount"), usage.get("candidatesTokenCount")
+
+
+_VERTEX_SCOPE = "https://www.googleapis.com/auth/cloud-platform"
+
+
+def _vertex_credentials_and_project():
+    """Load a dedicated service identity or the developer's Application Default Credentials."""
+    from google.auth import default
+    from google.oauth2 import service_account
+
+    raw_credentials = os.getenv("VERTEX_AI_SERVICE_ACCOUNT_JSON")
+    if raw_credentials:
+        info = json.loads(raw_credentials)
+        credentials = service_account.Credentials.from_service_account_info(info, scopes=[_VERTEX_SCOPE])
+        detected_project = info.get("project_id")
+    else:
+        credentials, detected_project = default(scopes=[_VERTEX_SCOPE])
+    project = os.getenv("VERTEX_AI_PROJECT") or os.getenv("GOOGLE_CLOUD_PROJECT") or detected_project
+    return credentials, project
+
+
+def _vertex_schema(schema):
+    """Convert the planner's JSON Schema types to Vertex's Schema enum names."""
+    type_names = {"object": "OBJECT", "array": "ARRAY", "string": "STRING", "integer": "INTEGER", "number": "NUMBER", "boolean": "BOOLEAN"}
+    converted = {}
+    for key, value in schema.items():
+        if key == "additionalProperties":
+            # Vertex responseSchema does not need this: the application strictly
+            # validates the exact keys after parsing the model response.
+            continue
+        if key == "type":
+            converted[key] = type_names.get(value, value)
+        elif isinstance(value, dict):
+            converted[key] = _vertex_schema(value)
+        elif isinstance(value, list):
+            converted[key] = [_vertex_schema(item) if isinstance(item, dict) else item for item in value]
+        else:
+            converted[key] = value
+    return converted
+
+
+def _vertex_plan(client, prompt, system, tools, schema, model):
+    try:
+        credentials, project = _vertex_credentials_and_project()
+    except Exception as exc:
+        raise GateError("AI_NOT_CONFIGURED", "Vertex AI credentials are unavailable. Configure local ADC or a private service-account credential.", 503) from exc
+    if not project:
+        raise GateError("AI_NOT_CONFIGURED", "Set VERTEX_AI_PROJECT to the Google Cloud project linked to your credits.", 503)
+    if os.getenv("AGENTGATE_ENV") == "demo" and not _live_ai_calls.allow("hosted-demo"):
+        raise GateError("AI_RATE_LIMITED", "The shared live AI demo reached its hourly request limit. Please try again later.", 429)
+    try:
+        from google.auth.transport.requests import Request
+        if not credentials.valid:
+            credentials.refresh(Request())
+    except Exception as exc:
+        raise GateError("AI_CLOUD_AUTH", "Vertex AI could not obtain a Google Cloud access token. Check the backend service identity.", 503) from exc
+    if not credentials.token:
+        raise GateError("AI_CLOUD_AUTH", "Vertex AI credentials did not provide an access token.", 503)
+
+    location = os.getenv("VERTEX_AI_LOCATION", "global")
+    host = "aiplatform.googleapis.com" if location == "global" else f"{quote(location, safe='')}-aiplatform.googleapis.com"
+    endpoint = (
+        f"https://{host}/v1/projects/{quote(project, safe='')}/locations/"
+        f"{quote(location, safe='')}/publishers/google/models/{quote(model, safe='')}:generateContent"
+    )
+    response = client.post(
+        endpoint,
+        headers={"Authorization": f"Bearer {credentials.token}"},
+        json={
+            "systemInstruction": {"parts": [{"text": system}]},
+            "contents": [{"role": "user", "parts": [{"text": json.dumps({"owner_request": prompt, "tool_results": tools})}]}],
+            "generationConfig": {
+                "responseMimeType": "application/json",
+                "responseSchema": _vertex_schema(schema),
+                "temperature": 0,
+                "maxOutputTokens": 220,
+            },
+        },
+    )
+    if response.status_code == 429:
+        raise GateError("AI_QUOTA_EXCEEDED", "Vertex AI quota or billing limits were reached. Check the project's Vertex AI quota and linked billing account.", 429)
+    if response.status_code in (401, 403):
+        raise GateError("AI_CLOUD_ACCESS", "Vertex AI access was denied. Check that the Vertex AI API is enabled and the service identity has Vertex AI User access on the selected project.", 503)
+    response.raise_for_status()
+    data = response.json()
+    parts = data["candidates"][0]["content"]["parts"]
+    text = "".join(part["text"] for part in parts if isinstance(part, dict) and isinstance(part.get("text"), str))
+    if not text:
+        raise ValueError("Vertex AI returned no structured text")
     usage = data.get("usageMetadata", {})
     return json.loads(text), usage.get("promptTokenCount"), usage.get("candidatesTokenCount")
 
@@ -94,6 +193,8 @@ def generate_plan(prompt, mandate, catalog, ollama_url, model):
         with httpx.Client(timeout=90) as client:
             if provider == "gemini":
                 plan, prompt_tokens, output_tokens = _gemini_plan(client, prompt, system, tools, schema, model)
+            elif provider == "vertex":
+                plan, prompt_tokens, output_tokens = _vertex_plan(client, prompt, system, tools, schema, model)
             elif provider == "ollama":
                 headers = {"Authorization": "Bearer " + os.environ["OLLAMA_API_KEY"]} if os.getenv("OLLAMA_API_KEY") else {}
                 response = client.post(ollama_url.rstrip("/") + "/api/chat", headers=headers, json={
@@ -117,7 +218,7 @@ def generate_plan(prompt, mandate, catalog, ollama_url, model):
     except GateError:
         raise
     except (httpx.HTTPError, ValueError, KeyError, TypeError, IndexError):
-        label = "Gemini" if provider == "gemini" else "Ollama"
+        label = "Vertex AI" if provider == "vertex" else "Gemini" if provider == "gemini" else "Ollama"
         raise GateError("MODEL_UNAVAILABLE", f"{label} did not return a valid plan. Retry in a moment.", 503)
     return {**plan, "latency_ms": round((time.perf_counter() - start) * 1000), "model": model, "provider": provider, "prompt_tokens": prompt_tokens, "output_tokens": output_tokens}
 

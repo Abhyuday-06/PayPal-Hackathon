@@ -1,4 +1,5 @@
 """Deployment checks without exposing credential values in diagnostics."""
+import json
 from urllib.parse import urlparse
 
 
@@ -17,10 +18,23 @@ def validate_deployment(env):
         if any(env.get(name) for name in ("PAYPAL_CLIENT_ID", "PAYPAL_CLIENT_SECRET", "PAYPAL_MERCHANT_ID", "PAYPAL_WEBHOOK_ID")):
             raise RuntimeError("Hosted demo cannot use PayPal credentials.")
         ai_provider = env.get("AGENTGATE_AI_PROVIDER", "recorded")
-        if ai_provider not in ("recorded", "gemini"):
-            raise RuntimeError("Hosted demo supports only recorded or Gemini AI mode.")
+        if ai_provider not in ("recorded", "gemini", "vertex"):
+            raise RuntimeError("Hosted demo supports only recorded, Gemini, or Vertex AI mode.")
         if ai_provider == "gemini" and not env.get("GEMINI_API_KEY"):
             raise RuntimeError("Gemini mode requires a private GEMINI_API_KEY.")
+        if ai_provider == "vertex":
+            project = env.get("VERTEX_AI_PROJECT") or env.get("GOOGLE_CLOUD_PROJECT")
+            service_account_json = env.get("VERTEX_AI_SERVICE_ACCOUNT_JSON", "")
+            credential_path = env.get("GOOGLE_APPLICATION_CREDENTIALS", "")
+            if service_account_json:
+                try:
+                    project = project or json.loads(service_account_json).get("project_id")
+                except (json.JSONDecodeError, AttributeError):
+                    raise RuntimeError("Vertex AI service-account credentials must be valid private JSON.")
+            if not project:
+                raise RuntimeError("Vertex AI mode requires VERTEX_AI_PROJECT or a service-account project ID.")
+            if not service_account_json and not credential_path:
+                raise RuntimeError("Vertex AI mode requires a private service-account credential or ADC file path.")
         tokens = [env.get(name, "") for name in ("AGENTGATE_OWNER_TOKEN", "AGENTGATE_IRIS_TOKEN", "AGENTGATE_NOVA_TOKEN")]
         if any(len(token) < 32 or token.startswith("local-") for token in tokens) or len(set(tokens)) != 3:
             raise RuntimeError("Hosted demo requires three distinct private credentials of at least 32 characters.")
