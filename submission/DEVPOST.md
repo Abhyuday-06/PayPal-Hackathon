@@ -36,7 +36,7 @@ The public repo includes an MIT licence, locked dependencies, tests, raw model e
 - A real planning run rejected a $45 light against $20 remaining and recorded the model's subsequent $20 cable replan.
 - Six synthetic guided-recording missions per model: Gemma matched 5/6 exact expected carts and Qwen 6/6; neither accepted a policy-violating cart in that small evaluation. All 34 attempts, including the failed task, are retained. The newer multi-category mode has not yet received a separate task-success evaluation.
 - The earlier, separate 60-trial benchmark recorded 12 unsafe suggestions blocked and 70% exact task matching. The two evaluations measure different workflows and are not combined into one accuracy claim.
-- Current local verification: 60 backend tests passed, one PostgreSQL-only integration test skipped because no isolated test database was configured; frontend typecheck and production build passed. GitHub Actions provisions PostgreSQL 17 for integration coverage. Earlier browser checks covered the judge workflow, auth boundaries, evidence downloads and phone-width layouts.
+- Latest GitHub Actions run on the submitted revision: 97 backend tests passed with PostgreSQL 17 and SQLite coverage (one intentional skip); frontend typecheck and production build passed. The local SQLite run passed 60 tests with one PostgreSQL-only integration skip. Earlier browser checks covered the judge workflow, auth boundaries, evidence downloads and phone-width layouts.
 
 ## Challenges and lessons
 

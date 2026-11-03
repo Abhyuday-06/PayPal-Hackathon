@@ -25,7 +25,7 @@ Both orders were approved by the sandbox buyer, captured through the gateway, an
 
 ## Validation
 
-- Previous GitHub Actions revision: 92 backend tests passed with PostgreSQL 17 and SQLite coverage (one intentional skip). This working revision's local check passed 60 backend tests with one PostgreSQL-only integration skip, plus the frontend typecheck and production build; CI provides the PostgreSQL 17 integration run on push.
+- Latest GitHub Actions run on the submitted revision: 97 backend tests passed with PostgreSQL 17 and SQLite coverage (one intentional skip); frontend typecheck and production build passed. The local SQLite run passed 60 tests with one PostgreSQL-only integration skip.
 - Next.js 16.4.4 production build passed; npm dependency audit reported zero vulnerabilities.
 - Browser verification covered owner authentication, foreign-origin rejection, disabled demo entry in the PayPal workspace, recorded-output labels, full simulated approval/payment/replay, evidence downloads and 360/390-pixel layouts.
 - Six mission cases per model: Gemma 5/6 expected carts, Qwen 6/6; zero policy violations accepted across 34 actual model attempts. Small synthetic scope, no general model-ranking claim.
