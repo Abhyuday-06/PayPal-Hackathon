@@ -6,7 +6,7 @@ An execution gateway for AI shopping agents with measured model behavior and a p
 
 Next.js owner console -> signed cookie / same-origin server proxy -> authenticated FastAPI -> reusable policy gateway -> SQLite or PostgreSQL ledger -> simulated provider or PayPal sandbox Orders API.
 
-Ollama -> typed purchase proposal -> same gateway. The model has no owner or payment tool. APIMatic-generated PayPal Server SDK performs authoritative order reads. Signature-verified webhook metadata queues read-only recovery. Database-backed worker jobs persist benchmark progress and reconciliation attempts.
+Configured AI provider (local Ollama or optional Gemini API) -> typed purchase proposal -> same gateway. The model has no owner or payment tool. APIMatic-generated PayPal Server SDK performs authoritative order reads. Signature-verified webhook metadata queues read-only recovery. Database-backed worker jobs persist benchmark progress and reconciliation attempts.
 
 ## Implemented and verified
 
@@ -26,7 +26,7 @@ Ollama -> typed purchase proposal -> same gateway. The model has no owner or pay
 ## Still open
 
 - Public YouTube upload/link and the Devpost form still require completion. GitHub release assets are not a substitute for the required public YouTube URL.
-- A public judge preview is deployed at https://agentgate-demo-console-2026.onrender.com. It deliberately uses recorded AI output and simulated payments. The full sandbox deployment additionally needs persistent PostgreSQL and a reachable model endpoint and remains undeployed.
+- A public judge preview is deployed at https://agentgate-demo-console-2026.onrender.com. It uses simulated payments and recorded AI unless the private Gemini API key is added and the new provider build is deployed. The full PayPal-sandbox deployment additionally needs persistent PostgreSQL and a reachable model endpoint and remains undeployed.
 - Real hosted webhook delivery must be registered and verified against PayPal.
 - Context Plugin registration is blocked by the installed CLI's missing plugin command; SDK runtime integration is complete.
 - Independent user feedback has not been collected. No customer-adoption claim is made.

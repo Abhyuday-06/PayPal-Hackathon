@@ -114,6 +114,8 @@ def test_hosted_demo_requires_simulation_and_separate_private_keys():
         {"DATABASE_URL": "postgresql://example/ledger"},
         {"PAYPAL_CLIENT_SECRET": "must-not-be-used"},
         {"AGENTGATE_NOVA_TOKEN": env["AGENTGATE_OWNER_TOKEN"]},
+        {"AGENTGATE_AI_PROVIDER": "gemini"},
     ):
         with pytest.raises(RuntimeError):
             validate_deployment({**env, **changes})
+    validate_deployment({**env, "AGENTGATE_AI_PROVIDER": "gemini", "GEMINI_API_KEY": "private-test-key"})

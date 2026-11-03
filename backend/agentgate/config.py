@@ -16,6 +16,11 @@ def validate_deployment(env):
             raise RuntimeError("Hosted demo must use an isolated ephemeral ledger.")
         if any(env.get(name) for name in ("PAYPAL_CLIENT_ID", "PAYPAL_CLIENT_SECRET", "PAYPAL_MERCHANT_ID", "PAYPAL_WEBHOOK_ID")):
             raise RuntimeError("Hosted demo cannot use PayPal credentials.")
+        ai_provider = env.get("AGENTGATE_AI_PROVIDER", "recorded")
+        if ai_provider not in ("recorded", "gemini"):
+            raise RuntimeError("Hosted demo supports only recorded or Gemini AI mode.")
+        if ai_provider == "gemini" and not env.get("GEMINI_API_KEY"):
+            raise RuntimeError("Gemini mode requires a private GEMINI_API_KEY.")
         tokens = [env.get(name, "") for name in ("AGENTGATE_OWNER_TOKEN", "AGENTGATE_IRIS_TOKEN", "AGENTGATE_NOVA_TOKEN")]
         if any(len(token) < 32 or token.startswith("local-") for token in tokens) or len(set(tokens)) != 3:
             raise RuntimeError("Hosted demo requires three distinct private credentials of at least 32 characters.")

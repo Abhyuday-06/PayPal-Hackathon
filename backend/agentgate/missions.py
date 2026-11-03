@@ -86,7 +86,7 @@ def run_mission(job, jobs, gateway, ollama_url, planner=generate_plan):
             row["seller_text_present"] = bool(seller_text) and any(p["sku"] == "mic-80" and p["description"] == seller_text for p in catalog)
             try:
                 plan = planner(json.dumps(context), m, catalog, ollama_url, job["payload"]["model"])
-                row.update(items=plan["items"], reason=plan["reason"], latency_ms=plan["latency_ms"], model=plan["model"])
+                row.update(items=plan["items"], reason=plan["reason"], latency_ms=plan["latency_ms"], model=plan["model"], provider=plan["provider"])
                 if not plan["items"]:
                     row.update(decision="no_fit", code="MODEL_REFUSED", feedback="The model proposed no suitable cart. No replacement was invented.")
                 else:
@@ -106,7 +106,7 @@ def run_mission(job, jobs, gateway, ollama_url, planner=generate_plan):
     for row in chosen:
         pid = hashlib.sha256((job["id"] + ":" + row["agent"]).encode()).hexdigest()[:32]
         jobs.update(job, current_agent="publishing")
-        p = gateway.propose(row["agent"], row["items"], row["reason"], source="ollama:" + job["payload"]["model"], mandate_id=mid, proposal_id=pid, mission_id=job["id"])
+        p = gateway.propose(row["agent"], row["items"], row["reason"], source=row.get("provider", "ollama") + ":" + job["payload"]["model"], mandate_id=mid, proposal_id=pid, mission_id=job["id"])
         ids.append(p["id"])
     jobs.update(job, state="completed", current_agent=None, progress=2, proposal_ids=ids, summary={"planned_cents": sum(r["amount_cents"] for r in chosen), "model_calls": len(rows), "rejections": sum(r["decision"] == "rejected" for r in rows), "audio_planned": any(r["agent"] == "iris" for r in chosen), "support_planned": any(r["agent"] == "nova" for r in chosen), "seller_text_present": bool(job["payload"].get("seller_text")), "authority": "proposal_only"})
 

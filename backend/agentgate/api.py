@@ -11,7 +11,7 @@ from fastapi.responses import JSONResponse
 from pydantic import BaseModel, ConfigDict, Field, StrictInt
 from .gateway import Gateway, GateError
 from .payments import SimulatedPayments, PayPalSandbox
-from .agent import plan_purchase
+from .agent import ai_available, configured_ai, plan_purchase
 from .lab import run_lab
 from .jobs import Jobs, Worker
 from .benchmark import CASE_PATH, run_benchmark, report_view
@@ -147,25 +147,31 @@ class MissionApproval(StrictModel):
 
 @app.get("/health")
 def health():
-    return {"status": "ok", "payment_mode": provider.mode, "database": "postgresql" if gateway.path.startswith(("postgresql:", "postgres:")) else "sqlite"}
+    ai_provider, model = configured_ai()
+    return {"status": "ok", "payment_mode": provider.mode, "database": "postgresql" if gateway.path.startswith(("postgresql:", "postgres:")) else "sqlite", "ai_provider": ai_provider, "ai_enabled": ai_available(), "model": model}
 
 
 @app.get("/api/state", dependencies=[Depends(owner)])
 def state():
     jobs = Jobs(gateway)
-    return {**gateway.state(), "model": os.getenv("OLLAMA_MODEL", "qwen2.5:7b"), "benchmarks": [report_view(j) for j in jobs.list("benchmark")], "missions": [mission_view(gateway, j) for j in jobs.list("mission")[:10]]}
+    ai_provider, model = configured_ai()
+    hosted_demo = os.getenv("AGENTGATE_ENV") == "demo"
+    return {**gateway.state(), "model": model, "ai_provider": ai_provider, "ai_enabled": ai_available(), "hosted_demo": hosted_demo, "benchmark_enabled": not hosted_demo, "benchmarks": [report_view(j) for j in jobs.list("benchmark")], "missions": [mission_view(gateway, j) for j in jobs.list("mission")[:10]]}
 
 
 @app.post("/api/missions", dependencies=[Depends(owner)])
 def start_mission(body: MissionRequest):
+    if not ai_available():
+        raise GateError("AI_NOT_CONFIGURED", "Live AI planning is not configured for this demo. Use the recorded AI mission instead.", 503)
     budget_for(gateway, body.mandate_id)
+    _, model = configured_ai()
     jobs = Jobs(gateway)
     # Global transaction makes duplicate-start checks and enqueue atomic.
     with gateway.tx() as db:
         records = [json.loads(r[0]) for r in db.execute("SELECT data FROM jobs").fetchall()]
         if any(j["kind"] == "mission" and j["state"] in ("queued", "running") for j in records):
             raise GateError("MISSION_ACTIVE", "A mission is already planning. Wait for its result.")
-        return report_view(jobs.enqueue("mission", {**body.model_dump(), "model": os.getenv("OLLAMA_MODEL", "qwen2.5:7b")}, db=db))
+        return report_view(jobs.enqueue("mission", {**body.model_dump(), "model": model}, db=db))
 
 
 @app.post("/api/demo/recorded-mission", dependencies=[Depends(owner)])
@@ -241,15 +247,19 @@ def verify_receipt(pid: str):
 
 @app.post("/api/agent/run", dependencies=[Depends(owner)])
 def agent_run(body: AgentRun):
-    return plan_purchase(gateway, body.prompt, body.agent, os.getenv("OLLAMA_URL", "http://localhost:11434"), os.getenv("OLLAMA_MODEL", "qwen2.5:7b"), body.mandate_id)
+    _, model = configured_ai()
+    return plan_purchase(gateway, body.prompt, body.agent, os.getenv("OLLAMA_URL", "http://localhost:11434"), model, body.mandate_id)
 
 
 @app.post("/api/benchmarks", dependencies=[Depends(owner)])
 def start_benchmark(body: BenchmarkRequest):
+    if os.getenv("AGENTGATE_ENV") == "demo":
+        raise GateError("BENCHMARK_DISABLED", "Live benchmarks are disabled in the shared public demo to protect its AI quota.", 403)
     jobs = Jobs(gateway)
     if any(j["state"] in ("queued", "running") for j in jobs.list("benchmark")):
         raise GateError("BENCHMARK_ACTIVE", "A benchmark is already queued or running.")
-    return jobs.enqueue("benchmark", {"repeats": body.repeats, "model": os.getenv("OLLAMA_MODEL", "qwen2.5:7b"), "dataset_sha256": hashlib.sha256(CASE_PATH.read_bytes()).hexdigest()})
+    _, model = configured_ai()
+    return jobs.enqueue("benchmark", {"repeats": body.repeats, "model": model, "dataset_sha256": hashlib.sha256(CASE_PATH.read_bytes()).hexdigest()})
 
 
 @app.get("/api/benchmarks/{jid}", dependencies=[Depends(owner)])

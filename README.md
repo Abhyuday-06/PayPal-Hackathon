@@ -4,7 +4,7 @@
 
 [Demo video and upload assets](https://github.com/Abhyuday-06/PayPal-Hackathon/releases/tag/v1.1.0) · [Submission description](submission/DEVPOST.md) · [Narration and production source](submission/)
 
-**[Open the hosted judge demo](https://agentgate-demo-console-2026.onrender.com).** It is a simulation-only preview: the mission uses recorded AI output and all payments are simulated. Free services can take about a minute to wake after idle; their temporary demo ledger resets when they sleep or restart.
+**[Open the hosted judge demo](https://agentgate-demo-console-2026.onrender.com).** Payments use the simulated provider. This preview will use recorded AI until the Gemini-enabled API build is deployed with a private AI Studio key; then judges can run bounded live Gemini planning. Free services can take about a minute to wake after idle; their temporary demo ledger resets when they sleep or restart.
 
 ## Judge quick start
 
@@ -20,7 +20,7 @@ The launcher installs missing app dependencies and starts [the isolated judge wo
 
 This workspace deliberately simulates payments and labels recorded model output. It does not claim fresh AI inference or real PayPal calls. The video and evidence below demonstrate actual local-model runs and confirmed PayPal sandbox captures. Live model/payment setup follows below. The local judge workspace is separate from the private PayPal ledger and cannot enter PayPal mode.
 
-AgentGate combines a real Ollama shopping planner, exact-cart approval, atomic shared-budget reservations, PayPal sandbox checkout/capture, a PostgreSQL ledger, and a reproducible evaluation console. The agent proposes purchases; owner approval and PayPal buyer approval remain separate steps.
+AgentGate combines structured AI planning (Ollama locally or Gemini when configured), exact-cart approval, atomic shared-budget reservations, PayPal sandbox checkout/capture, a PostgreSQL ledger, and a reproducible evaluation console. The agent proposes purchases; owner approval and PayPal buyer approval remain separate steps.
 
 The v0.3 recording mission coordinates two bounded planner calls: Iris chooses audio input, then Nova receives its cart and the remaining planning budget to choose supporting gear. Rejected attempts receive policy feedback and a feasible catalogue for replanning. Actual suggestions, catalogue reads, checks and fingerprints are inspectable and downloadable. Planning does not reserve funds; exact mission carts are approved together atomically.
 
@@ -73,6 +73,8 @@ npm.cmd run dev
 Open [the console](http://127.0.0.1:3000). Backend [health](http://127.0.0.1:8000/health) and [API docs](http://127.0.0.1:8000/docs) are local. Owner requests require `X-Owner-Token`; agent catalogue/proposal routes require an assigned `X-Agent-Token`. Prefer the IPv4 URL if another local app binds localhost through IPv6.
 
 For actual local AI, install Ollama and run `ollama pull qwen2.5:7b`. Start `ollama serve` only if the service is not already running. Configure `OLLAMA_URL` and `OLLAMA_MODEL` privately. `gemma2:2b` is a smaller tested alternative. A model outage produces an error; fixture buttons are explicitly labelled as having no model call.
+
+Alternatively, set `AGENTGATE_AI_PROVIDER=gemini`, `AGENTGATE_AI_MODEL=gemini-3.8-flash`, and `GEMINI_API_KEY` in `backend/.env` to use Google Gemini through the AI Studio API. Keep the key on the backend; never put it in frontend variables or source control. The request uses schema-constrained JSON, server-side catalogue validation and the same payment policy checks. In the public hosted demo, Gemini calls are capped at 30 per hour across visitors and live benchmarks are disabled. Mission goals and seller descriptions are sent to Google when live planning is enabled; do not enter personal or confidential data. Review Google's [current quotas and key rules](https://ai.google.dev/gemini-api/docs/api-key) and [pricing and data-use terms](https://ai.google.dev/gemini-api/docs/pricing) for the selected project tier before use.
 
 ## PayPal sandbox
 
