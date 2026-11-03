@@ -54,7 +54,7 @@ def _gemini_plan(client, prompt, system, tools, schema, model):
             "contents": [{"role": "user", "parts": [{"text": json.dumps({"owner_request": prompt, "tool_results": tools})}]}],
             "generationConfig": {
                 "responseMimeType": "application/json",
-                "responseSchema": schema,
+                "responseJsonSchema": schema,
                 "temperature": 0,
                 "maxOutputTokens": 220,
             },

@@ -39,7 +39,7 @@ def test_gemini_provider_uses_server_key_and_structured_output(monkeypatch):
     assert calls[0][1] == {"x-goog-api-key": "private-test-key"}
     request = calls[0][2]
     assert request["generationConfig"]["responseMimeType"] == "application/json"
-    assert request["generationConfig"]["responseSchema"]["properties"]["items"]["items"]["properties"]["sku"]["enum"] == ["mic-80"]
+    assert request["generationConfig"]["responseJsonSchema"]["properties"]["items"]["items"]["properties"]["sku"]["enum"] == ["mic-80"]
     assert "private-test-key" not in json.dumps(request)
 
 
