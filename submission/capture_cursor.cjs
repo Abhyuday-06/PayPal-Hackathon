@@ -47,6 +47,7 @@ function pointer(){
     await p.waitForFunction(id=>document.querySelector('#selected-budget')?.value===id,filming.budget);fs.writeFileSync(privateFile,JSON.stringify(filming));
     await p.getByRole('button',{name:'Plan recording mission',exact:true}).click();await p.getByRole('heading',{name:'A complete plan, ready for your review.'}).waitFor({timeout:180000});
    }else{await p.locator('#selected-budget').selectOption(filming.budget);await p.getByRole('heading',{name:'A complete plan, ready for your review.'}).waitFor()}
+   await p.evaluate(()=>window.scrollTo(0,0));
   },async(p,h)=>{
    await h.until(1);await h.move(p.locator('.budget-strip'),{zoom:1.25,duration:3,label:'Shared $100 budget',revealFirst:false});
    await h.until(5);await h.move(p.locator('.agent-handoff'),{zoom:1.4,duration:4,label:'Iris hands her cart and remainder to Nova'});
@@ -80,7 +81,8 @@ function pointer(){
   });
   await record('06-recovery',async p=>{await p.getByRole('button',{name:'Payment evidence',exact:true}).click();},async(p,h)=>{
    const card=p.locator('.evidence-receipt').filter({hasText:paid.paid[0].receipt.id});
-   await h.click(card.getByRole('button',{name:'Replay saved receipt',exact:true}),{zoom:1.38,duration:3.3,label:'Replay the same receipt'});await p.getByText('Original receipt returned. No new capture was initiated.',{exact:true}).waitFor();await h.until(6);
+   await h.click(card.getByRole('button',{name:'Replay saved receipt',exact:true}),{zoom:1.38,duration:2.1,label:'Replay the same receipt'});
+   const replayNotice=p.getByText('Original receipt returned. No new capture was initiated.',{exact:true});await replayNotice.waitFor();await h.move(replayNotice,{zoom:1.4,duration:2.7,label:'Original receipt returned without a new capture'});await h.until(6);
    await h.click(p.getByRole('button',{name:'Failure lab',exact:true}),{zoom:1.45,duration:2.2,label:'Open isolated failure lab',revealFirst:false});
    await h.click(p.getByRole('button',{name:'Run suite',exact:true}),{zoom:1.4,duration:3,label:'Run simulated failure cases'});await p.locator('.lab-score').waitFor();
    await h.until(12);await h.move(p.locator('.result-row').nth(2),{zoom:1.18,duration:5,label:'Ten isolated controls'});await h.until(21);

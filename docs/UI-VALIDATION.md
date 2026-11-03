@@ -8,6 +8,7 @@ Checks completed against the running app:
 - All six main views checked at widths 1440, 1024, 768, 390 and 360px: no page-wide horizontal overflow. Wide data tables retain their own horizontal scrolling.
 - A computed text/background contrast check examined 1,253 text-bearing elements across the six desktop views. No checked pair fell below 4.5:1 for normal text or 3:1 for large text. This covers the rendered text and solid backgrounds sampled by the check, rather than a full accessibility certification.
 - Desktop and phone screenshots reviewed for hierarchy, navigation, long payment identifiers and readable form controls.
+- Switching sections returns to the top of the new view, including after reading a long decision trace.
 - The isolated judge workflow passed: authenticated demo entry, foreign-origin rejection, owner approval, two simulated payments, receipt replay, phone layouts and reset. No browser page errors were observed.
 - The real sandbox mission remains captured at $100 spent and $0 reserved. Filming-only reservations were released without creating additional payment orders.
 

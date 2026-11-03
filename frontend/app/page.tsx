@@ -68,6 +68,8 @@ export default function Console() {
 
   const refresh = useCallback(async () => { setSnapshot(await api<Snapshot>("state")); }, []);
 
+  useEffect(() => { window.scrollTo(0, 0); }, [view]);
+
   useEffect(() => { fetch("/api/auth/session", { cache: "no-store" }).then(r => r.json()).then(async session => { setDemoAvailable(!!session.demo_available); setSignedIn(session.authenticated); if (session.authenticated) await refresh(); }).catch(() => setSignedIn(false)); }, [refresh]);
 
   useEffect(() => { if (!signedIn) return; const timer = setInterval(() => { refresh().catch(() => undefined); }, 5000); return () => clearInterval(timer); }, [signedIn, refresh]);
