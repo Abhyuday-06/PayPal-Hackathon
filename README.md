@@ -4,6 +4,8 @@
 
 [Demo video and upload assets](https://github.com/Abhyuday-06/PayPal-Hackathon/releases/tag/v1.1.0) · [Submission description](submission/DEVPOST.md) · [Narration and production source](submission/)
 
+**[Open the hosted judge demo](https://agentgate-demo-console-2026.onrender.com).** It is a simulation-only preview: the mission uses recorded AI output and all payments are simulated. Free services can take about a minute to wake after idle; their temporary demo ledger resets when they sleep or restart.
+
 ## Judge quick start
 
 Requires Python 3.12 and Node.js 22 LTS with npm. From a fresh clone:
@@ -100,6 +102,6 @@ Set `TEST_DATABASE_URL` to a dedicated test PostgreSQL database to include integ
 - [Current project status](docs/PROJECT_SPEC.md)
 - [External proposal-only agent example](docs/AGENT_INTEGRATION.md)
 
-Public source, MIT licence, recorded demo, captions, thumbnail and submission copy are included. The GitHub release provides the upload-ready video; it must still be uploaded publicly to YouTube and linked on Devpost. Public hosting is optional under the rules; the complete local judge launcher provides a working interactive build. Hosting configuration is prepared, with no live hosted deployment claimed. Real hosted webhook delivery, independent usability feedback and supported Context Plugin registration remain open. The generated PayPal SDK is integrated and verified; Context Plugin registration is not claimed.
+Public source, MIT licence, recorded demo, captions, thumbnail and submission copy are included. The GitHub release provides the upload-ready video; it must still be uploaded publicly to YouTube and linked on Devpost. The hosted judge preview is simulation-only; the video and evidence show actual local AI planning and verified PayPal sandbox captures. The full sandbox deployment blueprint is separate and not deployed. Real hosted webhook delivery, independent usability feedback and supported Context Plugin registration remain open. The generated PayPal SDK is integrated and verified; Context Plugin registration is not claimed.
 
 MIT licensed. No prize or production security guarantee is claimed.

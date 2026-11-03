@@ -42,5 +42,6 @@ This is a single-owner prototype with a small server-owned catalogue and two bou
 
 - Public source: https://github.com/Abhyuday-06/PayPal-Hackathon
 - Release/video download: https://github.com/Abhyuday-06/PayPal-Hackathon/releases/tag/v1.1.0
+- Hosted demo: https://agentgate-demo-console-2026.onrender.com (recorded AI and simulated payments; first load may take up to a minute after idle).
 - Working build instructions: repository README, “Judge quick start”.
 - Public YouTube URL: add after uploading the final release video.

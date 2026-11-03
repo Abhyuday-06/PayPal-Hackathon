@@ -33,7 +33,7 @@ Both orders were approved by the sandbox buyer, captured through the gateway, an
 
 ## Remaining publication and validation steps
 
-Upload the video publicly to YouTube using `submission/YOUTUBE.md`, then paste its public URL and `submission/DEVPOST.md` into the Devpost entry. A GitHub MP4 is not a substitute for the required YouTube link. Independent user feedback and real hosted webhook delivery are not claimed. Public hosting is optional; the documented local judge launcher provides the interactive build.
+Upload the video publicly to YouTube using `submission/YOUTUBE.md`, then paste its public URL and `submission/DEVPOST.md` into the Devpost entry. A GitHub MP4 is not a substitute for the required YouTube link. The hosted judge preview is https://agentgate-demo-console-2026.onrender.com and uses recorded AI output with simulated payments; the video carries the live-model and PayPal sandbox evidence. Independent user feedback and real hosted webhook delivery are not claimed. The documented local judge launcher remains available as an alternative.
 
 ## User feedback to collect
 

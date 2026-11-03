@@ -26,7 +26,7 @@ Ollama -> typed purchase proposal -> same gateway. The model has no owner or pay
 ## Still open
 
 - Public YouTube upload/link and the Devpost form still require completion. GitHub release assets are not a substitute for the required public YouTube URL.
-- Public hosting is not deployed. Working source plus the isolated judge launcher provides an interactive run path; hosted deployment additionally needs persistent PostgreSQL and a reachable model endpoint.
+- A public judge preview is deployed at https://agentgate-demo-console-2026.onrender.com. It deliberately uses recorded AI output and simulated payments. The full sandbox deployment additionally needs persistent PostgreSQL and a reachable model endpoint and remains undeployed.
 - Real hosted webhook delivery must be registered and verified against PayPal.
 - Context Plugin registration is blocked by the installed CLI's missing plugin command; SDK runtime integration is complete.
 - Independent user feedback has not been collected. No customer-adoption claim is made.
