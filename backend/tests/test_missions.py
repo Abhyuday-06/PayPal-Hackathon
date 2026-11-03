@@ -13,7 +13,7 @@ def launch(gate, seller_text=""):
 
 
 def fake_plan(sku):
-    return {"items": [{"sku": sku, "quantity": 1}], "reason": "Recorded test suggestion", "latency_ms": 1, "model": "test-model"}
+    return {"items": [{"sku": sku, "quantity": 1}], "reason": "Recorded test suggestion", "latency_ms": 1, "model": "test-model", "provider": "test"}
 
 
 def test_mission_replans_using_teammate_allocation_without_reserving_or_paying(gate):

@@ -15,7 +15,7 @@ def test_gemini_provider_uses_server_key_and_structured_output(monkeypatch):
             return False
         def post(self, url, *, headers, json):
             calls.append((url, headers, json))
-            return httpx.Response(200, json={
+            return httpx.Response(200, request=httpx.Request("POST", url), json={
                 "candidates": [{"content": {"parts": [{"text": '{"items":[{"sku":"mic-80","quantity":1}],"reason":"Fits the recording goal."}'}]}}],
                 "usageMetadata": {"promptTokenCount": 42, "candidatesTokenCount": 18},
             })
