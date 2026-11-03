@@ -150,8 +150,8 @@ def _vertex_plan(client, prompt, system, tools, schema, model):
             "generationConfig": {
                 "responseMimeType": "application/json",
                 "responseSchema": _vertex_schema(schema),
-                "temperature": 0,
-                "maxOutputTokens": 220,
+                "thinkingConfig": {"thinkingLevel": "LOW"},
+                "maxOutputTokens": 512,
             },
         },
     )
@@ -166,7 +166,16 @@ def _vertex_plan(client, prompt, system, tools, schema, model):
     if not text:
         raise ValueError("Vertex AI returned no structured text")
     usage = data.get("usageMetadata", {})
-    return json.loads(text), usage.get("promptTokenCount"), usage.get("candidatesTokenCount")
+    try:
+        plan = json.loads(text)
+    except json.JSONDecodeError:
+        # Some responses include a short preface despite responseSchema. Keep
+        # only an enclosed JSON object; the exact plan shape is validated below.
+        start, end = text.find("{"), text.rfind("}")
+        if start < 0 or end < start:
+            raise
+        plan = json.loads(text[start:end + 1])
+    return plan, usage.get("promptTokenCount"), usage.get("candidatesTokenCount")
 
 
 def generate_plan(prompt, mandate, catalog, ollama_url, model):
