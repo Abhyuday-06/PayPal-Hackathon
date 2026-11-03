@@ -3,9 +3,27 @@ from urllib.parse import urlparse
 
 
 def validate_deployment(env):
-    if env.get("AGENTGATE_ENV") != "production":
+    app_env = env.get("AGENTGATE_ENV")
+    demo_enabled = env.get("AGENTGATE_DEMO_MODE") == "true"
+
+    # Hosted judge demos deliberately use an ephemeral SQLite ledger and the
+    # simulated provider. Keep that mode explicit and fail closed if production
+    # payment credentials or a persistent database are accidentally attached.
+    if app_env == "demo":
+        if not demo_enabled or env.get("PAYMENT_MODE") != "simulated":
+            raise RuntimeError("Hosted demo requires demo mode and simulated payments.")
+        if env.get("DATABASE_URL"):
+            raise RuntimeError("Hosted demo must use an isolated ephemeral ledger.")
+        if any(env.get(name) for name in ("PAYPAL_CLIENT_ID", "PAYPAL_CLIENT_SECRET", "PAYPAL_MERCHANT_ID", "PAYPAL_WEBHOOK_ID")):
+            raise RuntimeError("Hosted demo cannot use PayPal credentials.")
+        tokens = [env.get(name, "") for name in ("AGENTGATE_OWNER_TOKEN", "AGENTGATE_IRIS_TOKEN", "AGENTGATE_NOVA_TOKEN")]
+        if any(len(token) < 32 or token.startswith("local-") for token in tokens) or len(set(tokens)) != 3:
+            raise RuntimeError("Hosted demo requires three distinct private credentials of at least 32 characters.")
         return
-    if env.get("AGENTGATE_DEMO_MODE") == "true":
+
+    if app_env != "production":
+        return
+    if demo_enabled:
         raise RuntimeError("Judge demo mode is local and cannot run in production.")
     tokens = [env.get(name, "") for name in ("AGENTGATE_OWNER_TOKEN", "AGENTGATE_IRIS_TOKEN", "AGENTGATE_NOVA_TOKEN")]
     if any(len(token) < 32 or token.startswith("local-") for token in tokens) or len(set(tokens)) != 3:

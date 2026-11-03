@@ -96,3 +96,24 @@ def test_deployment_fails_closed_without_persistent_database_or_private_keys():
     for changes in [{"DATABASE_URL": ""}, {"AGENTGATE_OWNER_TOKEN": "short"}, {"AGENTGATE_IRIS_TOKEN": env["AGENTGATE_OWNER_TOKEN"]}, {"FRONTEND_URL": "http://console.example"}, {"OLLAMA_URL": "http://localhost:11434"}]:
         with pytest.raises(RuntimeError):
             validate_deployment({**env, **changes})
+
+
+def test_hosted_demo_requires_simulation_and_separate_private_keys():
+    env = {
+        "AGENTGATE_ENV": "demo",
+        "AGENTGATE_DEMO_MODE": "true",
+        "PAYMENT_MODE": "simulated",
+        "AGENTGATE_OWNER_TOKEN": "o" * 40,
+        "AGENTGATE_IRIS_TOKEN": "i" * 40,
+        "AGENTGATE_NOVA_TOKEN": "n" * 40,
+    }
+    validate_deployment(env)
+    for changes in (
+        {"AGENTGATE_DEMO_MODE": "false"},
+        {"PAYMENT_MODE": "paypal"},
+        {"DATABASE_URL": "postgresql://example/ledger"},
+        {"PAYPAL_CLIENT_SECRET": "must-not-be-used"},
+        {"AGENTGATE_NOVA_TOKEN": env["AGENTGATE_OWNER_TOKEN"]},
+    ):
+        with pytest.raises(RuntimeError):
+            validate_deployment({**env, **changes})

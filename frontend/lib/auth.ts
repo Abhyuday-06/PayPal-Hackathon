@@ -8,7 +8,7 @@ export const SESSION_SECONDS = 8 * 60 * 60;
 function key() {
   const token = process.env.AGENTGATE_OWNER_TOKEN;
   if (!token || token === "local-agentgate-owner-change-before-sharing") throw new Error("Configure a private owner access key before signing in.");
-  if (process.env.AGENTGATE_ENV === "production" && token.length < 32) throw new Error("Deployment requires a private owner access key of at least 32 characters.");
+  if (["production", "demo"].includes(process.env.AGENTGATE_ENV || "") && token.length < 32) throw new Error("Deployment requires a private owner access key of at least 32 characters.");
   return token;
 }
 

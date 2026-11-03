@@ -1,5 +1,22 @@
 # Deployment handoff
 
+## Public judge preview (simulation only)
+
+The public judge preview is intentionally separate from the PayPal sandbox deployment below. It uses two Free web services, a disposable SQLite ledger, the simulated payment provider, and recorded AI output. It must not receive PayPal credentials, a database URL, or an Ollama API key. It does not demonstrate fresh model inference or PayPal checkout; those are shown in the project video and evidence. The login screen labels these limits, and the public **Explore simulated demo** button does not reveal owner or agent keys.
+
+Create both services from the public GitHub repository on `main`, in Singapore, with the Free plan. The Render MCP create-service flow builds from the repository root, so use these commands:
+
+| Service | Runtime | Build command | Start command |
+| --- | --- | --- | --- |
+| `agentgate-demo-api` | Python | `cd backend && pip install -r requirements.lock.txt` | `cd backend && uvicorn agentgate.api:app --host 0.0.0.0 --port $PORT` |
+| `agentgate-demo-console` | Node | `cd frontend && npm ci && npm run build` | `cd frontend && npm run start -- --port $PORT` |
+
+Set these API variables: `PYTHON_VERSION=3.12.10`, `AGENTGATE_ENV=demo`, `AGENTGATE_DEMO_MODE=true`, `PAYMENT_MODE=simulated`, `AGENTGATE_DB_PATH=/tmp/agentgate-demo.db`, and independently generated random values of at least 32 characters for `AGENTGATE_OWNER_TOKEN`, `AGENTGATE_IRIS_TOKEN`, and `AGENTGATE_NOVA_TOKEN`.
+
+Set these console variables: `NODE_VERSION=22.16.0`, `AGENTGATE_ENV=demo`, `AGENTGATE_DEMO_MODE=true`, the same private `AGENTGATE_OWNER_TOKEN`, `AGENTGATE_API_URL=<API HTTPS origin>`, and `AGENTGATE_CONSOLE_ORIGIN=<console HTTPS origin>`. Use the exact `onrender.com` origins assigned by Render, without trailing slashes. Both origins must be set before the console build finishes. Do not add `render.yaml`'s production variables to these services.
+
+Free services sleep after 15 minutes without inbound traffic and take about a minute to wake. Their filesystem is ephemeral: restarting, redeploying, or sleeping resets the demo ledger, which reseeds its recorded mission on startup. Free instances have no compute charge, but the workspace's outbound-bandwidth and build-minute limits are shared; exceeding an allowance can incur usage charges if a payment method is attached. Monitor Billing before and after the review window. The local demo remains available using `python scripts/start_demo.py`.
+
 `render.yaml` defines two explicitly free web services: the Python API and Next.js console. No paid service or database is created by this file. The configuration has not been deployed or validated against an authenticated Render account.
 
 ## Required inputs
