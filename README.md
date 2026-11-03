@@ -4,7 +4,7 @@
 
 [Demo video and upload assets](https://github.com/Abhyuday-06/PayPal-Hackathon/releases/tag/v1.1.0) · [Submission description](submission/DEVPOST.md) · [Narration and production source](submission/)
 
-**[Open the hosted judge demo](https://agentgate-demo-console-2026.onrender.com).** Payments use the simulated provider. The preview uses recorded AI until a private Vertex AI service identity is configured; then judges can run bounded live planning through the Google Cloud project. Free services can take about a minute to wake after idle; their temporary demo ledger resets when they sleep or restart.
+**[Open the hosted judge demo](https://agentgate-demo-console-2026.onrender.com).** Payments use the simulated provider. Judges can run live Gemini 3.8 Flash planning through Vertex AI and the linked Google Cloud project; the shared demo caps live calls at 30 per hour. Free services can take about a minute to wake after idle; their temporary demo ledger resets when they sleep or restart.
 
 ## Judge quick start
 

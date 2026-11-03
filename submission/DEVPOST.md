@@ -18,7 +18,7 @@ The Payment evidence view re-reads completed orders through the PayPal sandbox A
 
 ## How we built it
 
-Next.js/React owner console; FastAPI policy and payment API; PostgreSQL advisory locks per budget, with SQLite for an isolated local judge workspace; persisted job/payment leases; local Ollama structured model output, Google Cloud Vertex AI through ADC/service-account OAuth, and an optional server-side Gemini AI Studio provider; PayPal Orders v2 sandbox checkout and capture; generated PayPal Server SDK for authoritative reads. AI providers return schema-constrained proposals that are validated against the server-owned catalogue and policy. Verified webhooks queue read-only reconciliation. Real hosted webhook delivery has not been validated. The public preview uses recorded AI until its private Vertex AI service identity is configured; standard Vertex usage bills through the linked Google Cloud project. All hosted preview payments remain simulated.
+Next.js/React owner console; FastAPI policy and payment API; PostgreSQL advisory locks per budget, with SQLite for an isolated local judge workspace; persisted job/payment leases; local Ollama structured model output, Google Cloud Vertex AI through ADC/service-account OAuth, and an optional server-side Gemini AI Studio provider; PayPal Orders v2 sandbox checkout and capture; generated PayPal Server SDK for authoritative reads. AI providers return schema-constrained proposals that are validated against the server-owned catalogue and policy. Verified webhooks queue read-only reconciliation. Real hosted webhook delivery has not been validated. The public preview runs live Vertex AI Gemini 3.8 Flash with a 30-call hourly cap; standard Vertex usage bills through the linked Google Cloud project. All hosted preview payments remain simulated.
 
 The public repo includes an MIT licence, locked dependencies, tests, raw model evaluations, a separate agent example and a one-command judge launcher. `python scripts/start_demo.py` provides an interactive simulated workspace with explicitly recorded AI evidence; it needs no private payment credentials or model download. Live AI and PayPal setup is documented separately.
 
@@ -42,6 +42,6 @@ This is a single-owner prototype with a small server-owned catalogue and two bou
 
 - Public source: https://github.com/Abhyuday-06/PayPal-Hackathon
 - Release/video download: https://github.com/Abhyuday-06/PayPal-Hackathon/releases/tag/v1.1.0
-- Hosted demo: https://agentgate-demo-console-2026.onrender.com (simulated payments; recorded AI until a private Vertex AI service identity and provider build are deployed; first load may take up to a minute after idle).
+- Hosted demo: https://agentgate-demo-console-2026.onrender.com (live Vertex AI planning and simulated payments; first load may take up to a minute after idle).
 - Working build instructions: repository README, “Judge quick start”.
 - Public YouTube URL: add after uploading the final release video.

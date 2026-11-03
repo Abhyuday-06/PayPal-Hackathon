@@ -26,7 +26,7 @@ Configured AI provider (local Ollama, Google Cloud Vertex AI through ADC/service
 ## Still open
 
 - Public YouTube upload/link and the Devpost form still require completion. GitHub release assets are not a substitute for the required public YouTube URL.
-- A public judge preview is deployed at https://agentgate-demo-console-2026.onrender.com. It uses simulated payments and recorded AI until a dedicated Vertex AI service identity is configured on the API service and the provider build is deployed. Standard Vertex requests use the Google Cloud project's linked billing account; no AI Studio API key is used. The full PayPal-sandbox deployment additionally needs persistent PostgreSQL and a reachable model endpoint and remains undeployed.
+- A public judge preview is deployed at https://agentgate-demo-console-2026.onrender.com. It uses simulated payments and live Vertex AI Gemini 3.8 Flash planning with a dedicated service identity on the API service; the shared live-request cap is 30 per hour. Standard Vertex requests use the Google Cloud project's linked billing account; no AI Studio API key is used. The full PayPal-sandbox deployment additionally needs persistent PostgreSQL and a reachable model endpoint and remains undeployed.
 - Real hosted webhook delivery must be registered and verified against PayPal.
 - Context Plugin registration is blocked by the installed CLI's missing plugin command; SDK runtime integration is complete.
 - Independent user feedback has not been collected. No customer-adoption claim is made.
