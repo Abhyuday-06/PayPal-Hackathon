@@ -1,22 +1,22 @@
-# Published video
+# YouTube upload
 
-The walkthrough is uploaded at [AgentGate Walkthrough (PayPal Hackathon Submission)](https://www.youtube.com/watch?v=1ey3pn47ujk). YouTube currently reports it as Unlisted and 169 seconds long. The entry form accepts Public or Unlisted, but the official rules require the video to be publicly visible; set it to Public before submitting to remove ambiguity.
+The earlier upload at [AgentGate Walkthrough (PayPal Hackathon Submission)](https://www.youtube.com/watch?v=1ey3pn47ujk) is 169 seconds and Unlisted. The updated video is `submission/render-v2/AgentGate-Cursor-Walkthrough.mp4` (171.7 seconds, 1920×1080, H.264). Upload this revised cut and set it to **Public** before submitting; use its new YouTube URL in Devpost.
 
-The final release video is 169 seconds, with larger interface text, a visible cursor, click highlights and action-timed zooms. Captions and the thumbnail are available in the [v1.1.0 GitHub release](https://github.com/Abhyuday-06/PayPal-Hackathon/releases/tag/v1.1.0).
+The revised walkthrough adds the live multi-category mission to the existing cursor-led recording-mission and PayPal sandbox evidence. Captions, narration, thumbnail, and QA report ship in the [v1.2.0 GitHub release](https://github.com/Abhyuday-06/PayPal-Hackathon/releases/tag/v1.2.0).
 
 ## Description
 
-AgentGate is a working payment-control prototype for developers building purchasing agents. The walkthrough shows two planner roles coordinating a recording-equipment purchase under a shared owner budget. The current console also supports goal-based planning across a small, owner-authorized sample catalogue. The gateway checks authoritative catalogue prices, returns feedback for replanning, reserves exact carts atomically after owner approval, and verifies completed PayPal sandbox captures independently through the provider API.
+AgentGate is a working payment-control prototype for developers building purchasing agents. In the live catalogue example, Iris proposes a $35 USB call headset for a remote-work goal; Nova receives the remaining $65 planning budget and proposes a $60 webcam. The server validates both against its own catalogue and policy. The walkthrough then shows the guided recording example, owner approval, actual PayPal sandbox captures, and independent provider verification.
 
 Source and interactive judge setup:
 https://github.com/Abhyuday-06/PayPal-Hackathon
 
-MIT licensed. Python/FastAPI, Next.js, PostgreSQL/SQLite, local Ollama models and the APIMatic-generated PayPal Server SDK.
+MIT licensed. Python/FastAPI, Next.js, Google Cloud Vertex AI Gemini 3.8 Flash, local Ollama models, PayPal Orders v2 sandbox, and the APIMatic-generated PayPal Server SDK.
 
-Video: actual app recordings with loading/setup removed, edited across matching live planning demonstrations and the completed checkout evidence. The payment segment shows fresh read-only verification of the existing $80 and $20 captures; it does not initiate additional payments. Narration is AI-generated. All payments use PayPal sandbox test money. The failure lab and credential-free judge workspace are explicitly simulated; recorded model output is labelled. The small synthetic evaluations do not establish production security or universal attack resistance.
+Video: actual app recordings with login and model-loading screens removed. It shows a completed live Vertex AI catalog plan and the separate completed PayPal sandbox recording mission. The payment segment verifies the existing $80 and $20 captures through read-only provider lookups; it does not initiate additional payments. Narration is AI-generated. All payments use PayPal sandbox test money. The hosted judge preview simulates payments. Small synthetic evaluations do not establish production security or universal attack resistance.
 
 The working catalogue is a small owned demo storefront. The project does not claim production autonomous-payment authorization, AP2 compliance or independent customer adoption.
 
 ## Submission note
 
-Paste the YouTube URL above into Devpost's demonstration-video field. The GitHub MP4 is a backup/download and does not replace the YouTube link. The Devpost form itself still needs to be submitted by the project owner.
+After uploading the revised MP4, paste its new YouTube URL into Devpost's demonstration-video field. The old URL above still points to the earlier cut. The Devpost form itself still needs to be submitted by the project owner.

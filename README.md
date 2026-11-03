@@ -2,7 +2,7 @@
 
 **Give AI agents a budget. Keep payment authority with the owner.**
 
-[Demo video and upload assets](https://github.com/Abhyuday-06/PayPal-Hackathon/releases/tag/v1.1.0) · [Submission description](submission/DEVPOST.md) · [Narration and production source](submission/)
+[Demo video and upload assets](https://github.com/Abhyuday-06/PayPal-Hackathon/releases/tag/v1.2.0) · [Submission description](submission/DEVPOST.md) · [Narration and production source](submission/)
 
 **[Open the hosted judge demo](https://agentgate-demo-console-2026.onrender.com).** Payments use the simulated provider. Judges can run live Gemini 3.8 Flash planning through Vertex AI and the linked Google Cloud project; the shared demo caps live calls at 30 per hour. Free services can take about a minute to wake after idle; their temporary demo ledger resets when they sleep or restart.
 
@@ -107,6 +107,6 @@ Set `TEST_DATABASE_URL` to a dedicated test PostgreSQL database to include integ
 - [Current project status](docs/PROJECT_SPEC.md)
 - [External proposal-only agent example](docs/AGENT_INTEGRATION.md)
 
-Public source, MIT licence, recorded demo, captions, thumbnail and submission copy are included. The final walkthrough is on [YouTube](https://www.youtube.com/watch?v=1ey3pn47ujk) and the Devpost draft is in `submission/DEVPOST.md`. The hosted judge preview is simulation-only; it runs live Vertex AI planning, while the video and evidence show verified PayPal sandbox captures. The full sandbox deployment blueprint is separate and not deployed. Real hosted webhook delivery, independent usability feedback and supported Context Plugin registration remain open. The generated PayPal SDK is integrated and verified; Context Plugin registration is not claimed.
+Public source, MIT licence, interactive demo, captions, thumbnail and submission copy are included. The revised 171.7-second walkthrough shows a live Vertex AI catalogue plan and verified PayPal sandbox captures; upload it to YouTube and paste its new URL into the Devpost draft in `submission/DEVPOST.md`. The hosted judge preview simulates payments while it runs live Vertex AI planning. The full sandbox deployment blueprint is separate and not deployed. Real hosted webhook delivery, independent usability feedback and supported Context Plugin registration remain open. The generated PayPal SDK is integrated and verified; Context Plugin registration is not claimed.
 
 MIT licensed. No prize or production security guarantee is claimed.

@@ -13,13 +13,14 @@
       "id": "02-mission",
       "chapter": "A real purchasing mission",
       "headline": "One goal. Two agents. One shared budget.",
-      "narration": "Here is a working example: assemble a recording setup for one hundred dollars. Iris selects the audio input. Nova receives Iris's cart and the remaining planning budget to choose supporting gear. These recommendations come from a real local language model. The server owns prices, merchants, and policy."
+      "shot": "02-catalog",
+      "narration": "The live catalogue supports more goals than a recording kit. For this remote-work mission, Gemini 3.8 Flash suggests a thirty-five dollar call headset. Nova receives Iris's cart and the remaining sixty-five dollar planning budget, then proposes a sixty dollar webcam. The server validates both against its own catalogue and policy. Planning reserves nothing."
     },
     {
       "id": "03-replan",
       "chapter": "Policy becomes feedback",
       "headline": "A rejected suggestion becomes a better plan.",
-      "narration": "Iris chooses an eighty dollar microphone. Nova first suggests a forty five dollar light, even though only twenty dollars remains. AgentGate rejects that suggestion and returns precise feedback with affordable options. Nova then selects the twenty dollar cable kit. The trace preserves the actual model outputs, the checks, and the revised plan. No replacement cart is silently invented."
+      "narration": "In the recording example, Iris chooses an eighty dollar microphone. Nova first suggests a forty five dollar light, even though only twenty dollars remains. AgentGate rejects it, shows the checks, and asks Nova to replan. Nova then selects the twenty dollar cable kit. The trace preserves the actual model output and decision."
     },
     {
       "id": "04-approval",

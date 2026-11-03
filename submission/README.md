@@ -1,6 +1,6 @@
 # AgentGate video production source
 
-The v1.1.0 release contains the revised cursor walkthrough: larger Public Sans typography, a forest/teal interface, visible pointer movement, click pulses, and zoom-in/hold/zoom-out moves that follow the actions. It includes the final 1080p H.264/AAC MP4, English SRT/VTT captions, a PNG thumbnail, narration transcript and QA report. The video is uploaded to [YouTube](https://www.youtube.com/watch?v=1ey3pn47ujk); use [YOUTUBE.md](YOUTUBE.md) for its status and [DEVPOST.md](DEVPOST.md) for the submission copy.
+The v1.2.0 release contains the revised cursor walkthrough: larger Public Sans typography, a forest/teal interface, visible pointer movement, click pulses, and zoom-in/hold/zoom-out moves that follow the actions. It includes the live Vertex AI catalogue mission, the existing PayPal sandbox evidence, the 1080p H.264/AAC MP4, English SRT/VTT captions, a PNG thumbnail, narration transcript and QA report. Upload the revised video to [YouTube](https://www.youtube.com/) and paste its new URL into the Devpost copy in [DEVPOST.md](DEVPOST.md). The older upload at [this URL](https://www.youtube.com/watch?v=1ey3pn47ujk) still points to the previous cut; use [YOUTUBE.md](YOUTUBE.md) for the revised title and description.
 
 ## Provenance
 

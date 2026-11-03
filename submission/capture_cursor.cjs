@@ -53,6 +53,27 @@ function pointer(){
    await h.until(5);await h.move(p.locator('.agent-handoff'),{zoom:1.4,duration:4,label:'Iris hands her cart and remainder to Nova'});
    await h.until(11);await h.move(p.locator('.mission-carts'),{zoom:1.3,duration:4.5,label:'Actual model carts'});await h.until(18.4);
   });
+  // Capture the current cross-category catalogue workflow with a fresh budget.
+  await record('02-catalog',async p=>{
+   if(!filming.catalogBudget){
+    const response=p.waitForResponse(r=>r.url().endsWith('/api/gateway/mandates')&&r.request().method()==='POST');
+    await p.getByRole('button',{name:'Create a fresh $100 mission budget',exact:true}).click();const created=await(await response).json();filming.catalogBudget=created.id;
+    if(!filming.catalogBudget||filming.catalogBudget===paid.mandate_id)throw Error('Fresh catalogue filming budget was not created');
+    await p.waitForFunction(id=>document.querySelector('#selected-budget')?.value===id,filming.catalogBudget);fs.writeFileSync(privateFile,JSON.stringify(filming));
+   }else await p.locator('#selected-budget').selectOption(filming.catalogBudget);
+   await p.getByRole('button',{name:'Remote work',exact:true}).click();
+   await p.getByRole('button',{name:'Plan live mission',exact:true}).click();
+   await p.getByText('Planning complete',{exact:true}).waitFor({timeout:180000});
+   await p.locator('.mission-carts').waitFor({timeout:10000});
+   await p.evaluate(()=>window.scrollTo(0,0));
+  },async(p,h)=>{
+   await h.until(1);await h.move(p.locator('.budget-strip'),{zoom:1.25,duration:3,label:'Fresh $100 mission budget',revealFirst:false});
+   await h.until(4.5);await h.move(p.locator('.mission-mode-picker'),{zoom:1.32,duration:3.2,label:'Choose general catalogue planning'});
+   await h.until(8);await h.click(p.locator('.mission-catalogue summary'),{zoom:1.35,duration:3,label:'Inspect allowed sample products'});
+   await h.until(11.5);await h.move(p.locator('.mission-catalog-grid>div').first(),{zoom:1.3,duration:3,label:'Server-owned catalogue items'});
+   await h.until(15);await h.move(p.locator('.agent-handoff'),{zoom:1.35,duration:3.5,label:'Iris hands the remaining budget to Nova'});
+   await h.until(19);await h.move(p.locator('.mission-carts'),{zoom:1.32,duration:4,label:'Live model proposals for the mission'});await h.until(24);
+  });
   // Inspect the preserved actual replan from the completed payment mission.
   await record('03-replan',async p=>{await p.locator('#selected-budget').selectOption(paid.mandate_id);await p.locator('.decision-rejected').waitFor();},async(p,h)=>{
    const rows=p.locator('.mission-decision'),rejected=p.locator('.decision-rejected').first();

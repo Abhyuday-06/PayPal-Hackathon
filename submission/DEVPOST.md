@@ -33,6 +33,7 @@ The public repo includes an MIT licence, locked dependencies, tests, raw model e
 ## What we verified
 
 - A fresh $100 recording mission completed in PayPal sandbox as $80 and $20 captures. Independent provider lookups matched both receipts; the ledger showed $100 spent and $0 reserved.
+- A live Vertex AI catalogue mission proposed a $35 USB call headset and $60 webcam against a fresh $100 budget. Both remained pending owner approval; planning reserved no funds.
 - A real planning run rejected a $45 light against $20 remaining and recorded the model's subsequent $20 cable replan.
 - Six synthetic guided-recording missions per model: Gemma matched 5/6 exact expected carts and Qwen 6/6; neither accepted a policy-violating cart in that small evaluation. All 34 attempts, including the failed task, are retained. The newer multi-category mode has not yet received a separate task-success evaluation.
 - The earlier, separate 60-trial benchmark recorded 12 unsafe suggestions blocked and 70% exact task matching. The two evaluations measure different workflows and are not combined into one accuracy claim.
@@ -49,10 +50,11 @@ This is a single-owner prototype with a small server-owned sample catalogue and 
 ## Links for submission
 
 - Public source: https://github.com/Abhyuday-06/PayPal-Hackathon
-- Release/video download: https://github.com/Abhyuday-06/PayPal-Hackathon/releases/tag/v1.1.0
+- Release/video download: https://github.com/Abhyuday-06/PayPal-Hackathon/releases/tag/v1.2.0
 - Hosted demo: https://agentgate-demo-console-2026.onrender.com (live Vertex AI planning and simulated payments; first load may take up to a minute after idle).
 - Working build instructions: repository README, “Judge quick start”.
-- YouTube demonstration video (currently Unlisted, no password): https://www.youtube.com/watch?v=1ey3pn47ujk
+- YouTube demonstration video: Upload the revised 171.7-second MP4 from `submission/render-v2/AgentGate-Cursor-Walkthrough.mp4`, set it to Public, and paste its new URL here. The existing URL below is the older cut.
+- Existing YouTube URL (older cut, Unlisted): https://www.youtube.com/watch?v=1ey3pn47ujk
 
 ## Other Devpost fields
 
@@ -60,7 +62,7 @@ This is a single-owner prototype with a small server-owned sample catalogue and 
 - **Project status:** New. Repository history begins November 2, 2026, after the October 1 submission-period start. If asked what existed before October 1, enter `N/A — new project`.
 - **Public code repository:** https://github.com/Abhyuday-06/PayPal-Hackathon
 - **Working demo:** https://agentgate-demo-console-2026.onrender.com
-- **Testing instructions:** Open the hosted demo and choose **Explore public demo**. On **Purchase mission**, click **Create a fresh $100 mission budget** to enable the full sample catalogue; older budgets keep their original category limits. Choose **Sample catalogue** and start a goal such as Remote work or Online teaching. The hosted preview provides live Vertex AI planning, capped at 30 calls per hour, with simulated payments. No test credentials are required. The first request may take about a minute while the free service wakes. For a credential-free local run, follow **Judge quick start** in the repository README; that path uses explicitly labelled recorded AI and simulated payments. The video shows the separate real PayPal sandbox checkout and provider verification.
+- **Testing instructions:** Open the hosted demo and choose **Explore simulated demo**. On **Purchase mission**, click **Create a fresh $100 mission budget** to enable the full sample catalogue; older budgets keep their original category limits. Choose **Sample catalogue** and start a goal such as Remote work or Online teaching. The hosted preview provides live Vertex AI planning, capped at 30 calls per hour, with simulated payments. No test credentials are required. The first request may take about a minute while the free service wakes. For a credential-free local run, follow **Judge quick start** in the repository README; that path uses explicitly labelled recorded AI and simulated payments. The revised video shows the live catalogue plan, then the separate real PayPal sandbox checkout and provider verification.
 - **Upload file:** `submission/AgentGate-Devpost-Upload.zip` (source-only archive; below the 35 MB limit). The project thumbnail is in the archive at `submission/render-v2/AgentGate-Thumbnail.png`.
 - **AI tools used:** OpenAI Codex for development assistance; Google Cloud Vertex AI Gemini 3.8 Flash for hosted planning; local Ollama with Qwen 2.5 7B and Gemma 2 2B for model runs and evaluation.
 - **APIMatic Context Plugin experience:** Not used. The runtime uses the APIMatic-generated PayPal Server SDK; no Context Plugin invocation is claimed.
@@ -70,4 +72,4 @@ This is a single-owner prototype with a small server-owned sample catalogue and 
 - **Learning level / career value:** Choose these yourself; they describe your personal experience.
 - **Submitter type, country, organization, and eligibility declarations:** Entrant must choose and affirm these personally. Use `N/A` for Canadian province if you do not reside in Canada, and for organization name if entering as an individual.
 
-The YouTube video is currently Unlisted. The submission form copy accepts Public or Unlisted, but the official rules say the video must be publicly visible; set it to **Public** before submitting to remove ambiguity.
+The existing YouTube upload is Unlisted and contains the older cut. Upload the revised video, set its visibility to **Public** per the organizer's notice, and paste the new URL into Devpost.

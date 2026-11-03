@@ -47,7 +47,7 @@ export default function Mission({ runs, budget, catalog, model, aiEnabled, aiPro
     { label: "Online teaching", mode: "catalog" as const, objective: "Prepare a compact setup for teaching online. Prioritize a clear video or audio option, then add one useful complement only if it fits the remaining budget." },
     { label: "Recording kit", mode: "recording" as const, objective: "Prepare a simple recording setup: one microphone and useful supporting lighting or cables. Keep the combined cost within the shared budget." },
   ];
-  const completePlan = mission?.payload.mode === "catalog" ? !!mission.summary?.primary_planned : !!mission.summary?.audio_planned && !!mission.summary?.support_planned;
+  const completePlan = !mission ? false : mission.payload.mode === "catalog" ? !!mission.summary?.primary_planned : !!mission.summary?.audio_planned && !!mission.summary?.support_planned;
   return <div className="mission-workspace">
     <section className="mission-brief">
       <div className="mission-brief-heading"><ShoppingBag size={21} /><h2>Plan a purchase</h2><span>Agent mission</span></div>
